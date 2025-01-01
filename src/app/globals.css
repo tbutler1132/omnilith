@@ -1,4 +1,72 @@
 body {
   background-color: black;
-  color: white
+  color: white;
+  font-family: var(--font-electrolize);
+}
+
+#desireSection {
+  height: 100vh;
+}
+
+#desire-container {
+  display: flex;
+}
+
+#desire-container > .svg-container {
+  width: 65%;
+}
+
+#desire-container > .text-container {
+  width: 35%;
+  text-align: center;
+  font-size: 40;
+  display: flex;
+  justify-content: center; /* Horizontally centers the content */
+  align-items: center;
+  flex-direction: column;
+}
+
+#system-section {
+  height: 100vh;
+}
+
+#system-container {
+  display: flex;
+}
+
+#system-container > .svg-container {
+  width: 65%;
+}
+
+#system-container > .text-container {
+  width: 35%;
+}
+
+#heart-circle {
+  visibility: hidden;
+}
+
+#heart-circle-little {
+  visibility: hidden;
+}
+
+.desire-line {
+  stroke-width: 3;
+}
+
+.creation-line {
+  stroke-width: 3;
+}
+
+.system-entity {
+  stroke-width: 3;
+}
+
+/* #creations-text {
+  color: cyan;
+} */
+
+#desire-text {
+  color: #ff5b5b;
+  font-family: var(--font-orbitron);
 }
