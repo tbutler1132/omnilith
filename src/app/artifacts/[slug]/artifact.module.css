@@ -1,0 +1,49 @@
+.blogContainer {
+  max-width: 800px;
+  margin: 50px auto;
+  padding: 20px;
+  background: #1e1e1e;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.blogTitle {
+  font-size: 2.2rem;
+  color: #ffffff;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.blogMeta {
+  font-size: 0.9rem;
+  color: #bbbbbb;
+  text-align: center;
+}
+
+.blogImage {
+  width: 100%;
+  height: auto;
+  margin: 20px 0;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+}
+
+.blogCategories {
+  font-size: 0.9rem;
+  color: #ffaa00;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.blogContent {
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .blogContainer {
+    width: 90%;
+    padding: 15px;
+  }
+}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Orbitron, Electrolize } from "next/font/google";
+import Nav from "./components/Nav";
 import "./globals.css";
 
 const orbitron = Orbitron({
@@ -28,6 +29,7 @@ export default function RootLayout({
       <body
         className={`${orbitron.variable} ${orbitron.variable} ${electrolize.variable}`}
       >
+        <Nav />
         {children}
       </body>
     </html>

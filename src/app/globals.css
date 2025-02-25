@@ -2,6 +2,7 @@ body {
   background-color: black;
   color: white;
   font-family: var(--font-electrolize);
+  margin: 0;
 }
 
 #desireSection {
@@ -69,4 +70,13 @@ body {
 #desire-text {
   color: #ff5b5b;
   font-family: var(--font-orbitron);
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+html {
+  scrollbar-width: none;
 }

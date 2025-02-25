@@ -1,0 +1,64 @@
+.mainNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  font-family: "Orbitron", sans-serif;
+  background: rgba(10, 10, 20, 0.8);
+  border-color: white;
+  /* box-shadow: 0 0 10px rgba(0, 255, 255, 0.8); */
+  position: relative;
+  overflow: hidden;
+  position: sticky;
+  top: 0;
+  z-index: 1000; /* Ensure it stays above other elements */
+}
+
+.mainNav div span {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: rgb(235, 234, 245); /* Neon cyan */
+  letter-spacing: 2px;
+  position: relative;
+}
+
+.mainNav div a {
+  margin: 0 15px;
+  text-decoration: none;
+  font-size: 1.2rem;
+  color: rgb(250, 237, 246);
+  transition: color 0.3s ease-in-out;
+  position: relative;
+}
+
+.mainNav div a:hover {
+  color: #0ff;
+  text-shadow:
+    0 0 10px #0ff,
+    0 0 20px #0ff,
+    0 0 40px #0ff;
+}
+
+.mainNav::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 200%;
+  height: 100%;
+  /* background: linear-gradient(
+    115deg,
+    rgba(0, 255, 255, 0.2),
+    rgba(255, 0, 255, 0.2)
+  ); */
+  transform: translateX(-50%);
+  animation: glitch 2s infinite linear;
+  opacity: 0.3;
+  z-index: -1;
+}
+
+/* Extra Glitch effect on hover */
+.mainNav:hover {
+  animation: glitch 0.4s linear infinite;
+}
