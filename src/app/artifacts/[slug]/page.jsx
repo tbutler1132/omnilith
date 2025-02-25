@@ -1,39 +1,44 @@
 import { client } from "../../../sanity/lib/client";
 import { PortableText } from "@portabletext/react";
 import styles from "./artifact.module.css";
-
-const query = `*[_type == "post" && slug.current == $slug][0] {
-    title,
-    body,
-    mainImage { asset->{url} },
-    publishedAt,
-    "author": author->name,
-    "categories": categories[]->title
-  }`;
+import { GET_POST } from "../../queries/postsQueries";
+import { convertToEmbedYoutubeUrl } from "../../utils/urlUtils";
 
 const Artifact = async ({ params }) => {
   const slug = (await params).slug;
-  const post = await client.fetch(query, { slug });
-  console.log("Post", post);
+  const post = await client.fetch(GET_POST, { slug });
   return (
     <div className={styles.blogContainer}>
       <h1 className={styles.blogTitle}>{post.title}</h1>
       <p className={styles.blogMeta}>
         By {post.author} • {new Date(post.publishedAt).toLocaleDateString()}
       </p>
-      {post.mainImage?.asset.url && (
+      {post.youtubeVideo && (
+        <div className={styles.youtubeEmbed}>
+          <iframe
+            width="100%"
+            height="600"
+            src={convertToEmbedYoutubeUrl(post.youtubeVideo)}
+            frameBorder="0"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            title="YouTube video"
+          />
+        </div>
+      )}
+      {post.mainImage?.asset.url && !post.youtubeVideo && (
         <img
           className={styles.blogImage}
           src={post.mainImage.asset.url}
           alt={post.title}
         />
       )}
-      <p className={styles.blogCategories}>
-        Categories: {post.categories.join(", ")}
-      </p>
       <div className={styles.blogContent}>
         <PortableText value={post.body} />
       </div>
+      <p className={styles.blogCategories}>
+        Categories: {post.categories.join(", ")}
+      </p>
     </div>
   );
 };

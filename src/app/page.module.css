@@ -21,23 +21,29 @@
   color: rgb(235, 234, 245); /* Neon cyan */
   letter-spacing: 2px;
   position: relative;
+  text-shadow:
+    0 0 10px white,
+    0 0 20px white,
+    0 0 30px white;
 }
 
-.mainNav div a {
+.mainLogo {
+  text-decoration: none;
+  color: white;
+}
+
+.rightLink {
   margin: 0 15px;
   text-decoration: none;
   font-size: 1.2rem;
   color: rgb(250, 237, 246);
-  transition: color 0.3s ease-in-out;
+  transition: color 0.5s ease-in-out;
   position: relative;
 }
 
-.mainNav div a:hover {
+.rightLink:hover {
   color: #0ff;
-  text-shadow:
-    0 0 10px #0ff,
-    0 0 20px #0ff,
-    0 0 40px #0ff;
+  text-decoration: underline;
 }
 
 .mainNav::before {

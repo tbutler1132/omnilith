@@ -1,50 +1,65 @@
 .blogItem {
   background: rgba(20, 20, 20, 0.9);
-  padding: 20px;
-  border-radius: 8px;
+  padding: 18px 24px;
+  border-radius: 50px; /* Keeps the hotdog shape */
   transition: transform 0.2s ease-in-out;
-  border: 1px solid rgba(0, 255, 255, 0.3);
+  border: 2px solid rgba(0, 255, 255, 0.3);
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center; /* Centers content vertically */
+  gap: 25px;
+  width: 100%;
+  max-width: 950px; /* Slightly wider */
+  height: 140px; /* A bit taller */
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.blogItem:hover {
+  transform: scale(1.03);
 }
 
 .blogItem img {
-  width: 100%;
-  max-width: 350px; /* Restrict width */
-  max-height: 250px; /* Restrict height */
-  object-fit: cover; /* Ensures no distortion */
-  border-radius: 6px;
-  margin-top: 10px;
+  width: 160px; /* Slightly bigger image */
+  height: 120px;
+  object-fit: cover;
+  border-radius: 40px;
 }
 
 .blogItem h2 {
-  font-size: 1.5rem;
+  font-size: 1.7rem; /* BIGGER TITLE */
+  font-weight: bold; /* Extra emphasis */
   color: #0ff;
-  margin-bottom: 8px;
+  margin: 0;
 }
 
 .blogItem p {
   color: #ccc;
-  font-size: 0.9rem;
+  font-size: 1rem; /* Slightly larger text */
+  margin: 4px 0;
 }
 
 .blogList {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  max-width: 800px;
+  align-items: center;
+  gap: 25px; /* More vertical space */
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 20px;
-  list-style: none; /* Removes bullet points */
+  padding: 25px 0;
+  list-style: none;
 }
 
-.blogItem a {
-  color: #8f6aff; /* Neon purple link */
+.cardLink {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
   text-decoration: none;
 }
 
-.blogItem a:hover {
-  text-decoration: underline;
-  color: #c47aff;
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
 }

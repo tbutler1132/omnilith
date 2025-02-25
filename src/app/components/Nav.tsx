@@ -5,11 +5,19 @@ const Nav = () => {
   return (
     <nav className={styles.mainNav}>
       <div>
-        <span>OMNILITH</span>
+        <span>
+          <Link className={styles.mainLogo} href="/">
+            OMNILITH
+          </Link>
+        </span>
       </div>
       <div>
-        <Link href="/beats">Beats</Link>
-        <Link href="/artifacts">Blog</Link>
+        <Link className={styles.rightLink} href="/beats">
+          Beats
+        </Link>
+        <Link className={styles.rightLink} href="/artifacts">
+          Blog
+        </Link>
       </div>
     </nav>
   );

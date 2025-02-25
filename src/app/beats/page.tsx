@@ -3,7 +3,6 @@ import styles from "./beats.module.css";
 const Beats = () => {
   return (
     <div style={{ height: "100vh" }}>
-      <h1 className={styles.glowingText}>Beats</h1>
       <iframe
         id="airbit_infinity"
         src="https://omnilith.infinity.airbit.com?config_id=16353&embed=1"

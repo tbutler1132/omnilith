@@ -1,31 +1,31 @@
 import { client } from "../../sanity/lib/client";
 import Link from "next/link";
 import styles from "./artifacts.module.css";
-
-const query = `*[_type == "post"] | order(publishedAt desc) {
-    _id,
-    title,
-    slug,
-    mainImage { asset->{url} },
-    publishedAt,
-    "author": author->name,
-    "categories": categories[]->title
-  }`;
+import { GET_POSTS } from "../queries/postsQueries";
 
 const Artifacts = async () => {
-  const posts = await client.fetch(query);
-  console.log("Posts", posts);
+  const posts = await client.fetch(GET_POSTS);
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Artifacts</h1>
       <ul className={styles.blogList}>
         {posts.map((post) => (
           <li key={post._id} className={styles.blogItem}>
-            <Link href={`/artifacts/${post.slug.current}`}>{post.title}</Link>
-            <img src={post.mainImage?.asset.url} alt={"No image"} />
-            <p>{new Date(post.publishedAt).toLocaleDateString()}</p>
-            <p>By: {post.author}</p>
-            <p>Categories: {post.categories.join(", ")}</p>
+            <Link
+              href={`/artifacts/${post.slug.current}`}
+              className={styles.cardLink}
+            >
+              <div className={styles.content}>
+                <h2>{post.title}</h2>
+                <p>
+                  {new Date(post.publishedAt).toLocaleDateString()} • By{" "}
+                  {post.author}
+                </p>
+                <p>Categories: {post.categories?.join(", ")}</p>
+              </div>
+              {post.mainImage?.asset.url && (
+                <img src={post.mainImage.asset.url} alt={post.title} />
+              )}
+            </Link>
           </li>
         ))}
       </ul>

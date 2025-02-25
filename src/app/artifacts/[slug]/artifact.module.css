@@ -1,43 +1,54 @@
 .blogContainer {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 50px auto;
   padding: 20px;
   background: #1e1e1e;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center content */
 }
 
 .blogTitle {
-  font-size: 2.2rem;
+  font-size: 2.5rem; /* Increased size */
   color: #ffffff;
   margin-bottom: 10px;
   text-align: center;
 }
 
 .blogMeta {
-  font-size: 0.9rem;
+  font-size: 1.1rem; /* Increased size */
   color: #bbbbbb;
   text-align: center;
 }
 
 .blogImage {
-  width: 100%;
+  width: 35%;
   height: auto;
-  margin: 20px 0;
+  margin: 20px;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+  display: block;
+  margin-left: auto;
+  margin-right: auto; /* This will center the image horizontally */
 }
 
 .blogCategories {
-  font-size: 0.9rem;
+  font-size: 1.1rem; /* Increased size */
   color: #ffaa00;
   margin-bottom: 15px;
   text-align: center;
 }
 
 .blogContent {
-  font-size: 1.1rem;
+  font-size: 1.3rem; /* Increased size */
   line-height: 1.8;
+  width: 100%;
+}
+
+.youtubeEmbed {
+  width: 100%;
 }
 
 /* Responsive Design */
@@ -45,5 +56,9 @@
   .blogContainer {
     width: 90%;
     padding: 15px;
+  }
+
+  .blogImage {
+    width: 80%; /* Adjust the image width for smaller screens */
   }
 }
