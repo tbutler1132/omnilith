@@ -1,5 +1,5 @@
 import { Orbitron, Electrolize } from "next/font/google";
-import Nav from "./components/Nav";
+import Nav from "../components/Nav";
 import "./globals.css";
 
 const orbitron = Orbitron({

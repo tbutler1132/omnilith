@@ -1,7 +1,7 @@
 import { client } from "../../../sanity/lib/client";
 import { PortableText } from "@portabletext/react";
 import styles from "./artifact.module.css";
-import { GET_POST } from "../../queries/postsQueries";
+import { GET_POST } from "../../../queries/postsQueries";
 import { convertToEmbedYoutubeUrl } from "../../utils/urlUtils";
 
 const Artifact = async ({ params }) => {
