@@ -1,0 +1,70 @@
+.mainNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  font-family: "Orbitron", sans-serif;
+  background: rgba(10, 10, 20, 0.8);
+  border-color: white;
+  /* box-shadow: 0 0 10px rgba(0, 255, 255, 0.8); */
+  position: relative;
+  overflow: hidden;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.mainNav div span {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: rgb(235, 234, 245); /* Neon cyan */
+  letter-spacing: 2px;
+  position: relative;
+  text-shadow:
+    0 0 10px white,
+    0 0 20px white,
+    0 0 30px white;
+}
+
+.mainLogo {
+  text-decoration: none;
+  color: white;
+}
+
+.rightLink {
+  margin: 0 15px;
+  text-decoration: none;
+  font-size: 1.2rem;
+  color: rgb(250, 237, 246);
+  transition: color 0.5s ease-in-out;
+  position: relative;
+}
+
+.rightLink:hover {
+  color: #0ff;
+  text-decoration: underline;
+}
+
+.mainNav::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 200%;
+  height: 100%;
+  transform: translateX(-50%);
+  animation: glitch 2s infinite linear;
+  opacity: 0.3;
+  z-index: -1;
+}
+
+.mainNav:hover {
+  animation: glitch 0.4s linear infinite;
+}
+
+/* @media (max-width: 768px) {
+  .mainNav {
+    justify-content: left;
+  }
+} */

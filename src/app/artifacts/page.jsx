@@ -1,7 +1,7 @@
 import { client } from "../../sanity/lib/client";
 import Link from "next/link";
 import styles from "./artifacts.module.css";
-import { GET_POSTS } from "../queries/postsQueries";
+import { GET_POSTS } from "../../queries/postsQueries";
 
 const Artifacts = async ({ searchParams }) => {
   // const paramValue = await searchParams.category;

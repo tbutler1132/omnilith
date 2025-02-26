@@ -1,13 +1,17 @@
+"use client";
+
 import Link from "next/link";
-import styles from "../page.module.css";
+import styles from "./components.module.css";
+import useMobile from "../hooks/useMobile";
 
 const Nav = () => {
+  const isMobile = useMobile();
   return (
     <nav className={styles.mainNav}>
-      <div>
+      <div className={styles.mainLogoContainer}>
         <span>
           <Link className={styles.mainLogo} href="/">
-            OMNILITH
+            {isMobile ? "OMNI" : "OMNILITH"}
           </Link>
         </span>
       </div>
