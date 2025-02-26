@@ -3,7 +3,8 @@ import Link from "next/link";
 import styles from "./artifacts.module.css";
 import { GET_POSTS } from "../queries/postsQueries";
 
-const Artifacts = async () => {
+const Artifacts = async ({ searchParams }) => {
+  // const paramValue = await searchParams.category;
   const posts = await client.fetch(GET_POSTS);
   return (
     <div className={styles.container}>
@@ -20,7 +21,9 @@ const Artifacts = async () => {
                   {new Date(post.publishedAt).toLocaleDateString()} • By{" "}
                   {post.author}
                 </p>
-                <p>Categories: {post.categories?.join(", ")}</p>
+                <p className={styles.category}>
+                  Categories: {post.categories?.join(", ")}
+                </p>
               </div>
               {post.mainImage?.asset.url && (
                 <img src={post.mainImage.asset.url} alt={post.title} />

@@ -1,54 +1,65 @@
+/* Blog Item */
 .blogItem {
   background: rgba(20, 20, 20, 0.9);
   padding: 18px 24px;
-  border-radius: 50px; /* Keeps the hotdog shape */
+  border-radius: 50px;
   transition: transform 0.2s ease-in-out;
   border: 2px solid rgba(0, 255, 255, 0.3);
   display: flex;
-  align-items: center; /* Centers content vertically */
+  align-items: center;
   gap: 25px;
   width: 100%;
-  max-width: 950px; /* Slightly wider */
-  height: 140px; /* A bit taller */
+  max-width: 950px;
+  height: auto;
   cursor: pointer;
   overflow: hidden;
+  box-sizing: border-box; /* Prevents extra spacing issues */
 }
 
 .blogItem:hover {
   transform: scale(1.03);
 }
 
+/* Image Responsiveness */
 .blogItem img {
-  width: 160px; /* Slightly bigger image */
-  height: 120px;
+  width: 100%;
+  max-width: 160px;
+  height: auto;
   object-fit: cover;
   border-radius: 40px;
 }
 
+/* Title */
 .blogItem h2 {
-  font-size: 1.7rem; /* BIGGER TITLE */
-  font-weight: bold; /* Extra emphasis */
+  font-size: 1.7rem;
+  font-weight: bold;
   color: #0ff;
   margin: 0;
+  word-wrap: break-word; /* Ensures long words don't overflow */
 }
 
+/* Paragraph */
 .blogItem p {
   color: #ccc;
-  font-size: 1rem; /* Slightly larger text */
+  font-size: 1rem;
   margin: 4px 0;
+  word-wrap: break-word;
 }
 
+/* Blog List */
 .blogList {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 25px; /* More vertical space */
-  max-width: 1000px;
+  gap: 25px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 25px 0;
+  padding: 25px 10px; /* Added padding to avoid overflow */
   list-style: none;
+  box-sizing: border-box;
 }
 
+/* Link */
 .cardLink {
   display: flex;
   align-items: center;
@@ -57,9 +68,48 @@
   text-decoration: none;
 }
 
+/* Content */
 .content {
   display: flex;
   flex-direction: column;
   justify-content: center;
   flex-grow: 1;
+}
+
+.category {
+  color: rgb(199, 132, 6);
+}
+
+@media (max-width: 768px) {
+  .blogItem {
+    flex-direction: column;
+    height: auto;
+    padding: 15px;
+    gap: 15px;
+    border-radius: 25px;
+    width: 95%; /* Prevents overflow */
+    max-width: 100%;
+  }
+
+  .blogItem img {
+    width: 80%; /* Makes the image smaller */
+    max-width: 200px; /* Limits max size */
+    height: auto;
+    border-radius: 20px;
+  }
+
+  .blogItem h2,
+  .blogItem p {
+    text-align: center;
+    font-size: 1rem;
+  }
+
+  .cardLink {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .content {
+    align-items: center;
+  }
 }
