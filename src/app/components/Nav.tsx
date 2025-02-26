@@ -12,7 +12,11 @@ const Nav = () => {
         </span>
       </div>
       <div>
-        <Link className={styles.rightLink} href="/beats">
+        <Link
+          className={styles.rightLink}
+          target="_blank"
+          href="https://omnilith.infinity.airbit.com/"
+        >
           Beats
         </Link>
         <Link className={styles.rightLink} href="/artifacts">

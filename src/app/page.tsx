@@ -1,7 +1,8 @@
 import styles from "./page.module.css";
+import { redirect } from "next/navigation";
 
 const Home = () => {
-  return <div className={styles.page}></div>;
+  redirect("/artifacts");
 };
 
 export default Home;
