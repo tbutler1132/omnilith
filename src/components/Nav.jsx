@@ -16,6 +16,9 @@ const Nav = () => {
         </span>
       </div>
       <div>
+        <Link className={styles.rightLink} href="/artifacts?category=Music">
+          Music
+        </Link>
         <Link
           className={styles.rightLink}
           target="_blank"
