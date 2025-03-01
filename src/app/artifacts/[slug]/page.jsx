@@ -7,6 +7,11 @@ import { convertToEmbedYoutubeUrl } from "../../utils/urlUtils";
 const Artifact = async ({ params }) => {
   const slug = (await params).slug;
   const post = await client.fetch(GET_POST, { slug });
+
+  if (!post) {
+    return "There was an error.";
+  }
+
   return (
     <div className={styles.blogContainer}>
       <h1 className={styles.blogTitle}>{post.title}</h1>
