@@ -88,6 +88,8 @@ npm run test       # run tests
 3. **Keep policies pure** — if you need side effects, that's an ActionRun
 4. **Run `npm run check`** after any non-trivial change
 5. **Respect the regulatory framing** — Variables, viable ranges, Episodes. Don't optimize; regulate.
+6. **Consider tests for every change** — Ask what tests would verify the change works and prevent regressions.
+7. **Prioritize clean code** — Readable, well-structured code over clever solutions.
 
 ## Philosophy
 
