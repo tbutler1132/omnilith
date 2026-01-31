@@ -16,7 +16,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 0: Project Foundation
 
-*Set up the scaffolding so everything has a home.*
+_Set up the scaffolding so everything has a home._
 
 ### 0.1 — Monorepo Structure
 
@@ -33,6 +33,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 ```
 
 **Sub-tasks:**
+
 - [ ] Set up npm/pnpm workspaces
 - [ ] Configure TypeScript project references (each package compiles independently)
 - [ ] Add shared ESLint/Prettier config at root
@@ -51,6 +52,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 0.1
 
 **Sub-tasks:**
+
 - [ ] Define `Node`, `NodeKind`, `Edge` types
 - [ ] Define `Observation`, `Provenance` types
 - [ ] Define `Artifact`, `PageDoc`, `Block` types
@@ -75,6 +77,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 0.2
 
 **Sub-tasks:**
+
 - [ ] Define bundle folder structure as constants
 - [ ] Create JSON schemas for each file type (for validation)
 - [ ] Define NDJSON log format helpers (parse/stringify line-by-line)
@@ -86,34 +89,35 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 1: Repository Layer (Substrate Independence)
 
-*Build the data access layer so we can swap storage backends later.*
+_Build the data access layer so we can swap storage backends later._
 
-### 1.1 — Repository Interfaces
+### 1.1 — Repository Interfaces ✓
 
-**What this is:** Abstract interfaces that define *what* operations are available, not *how* they're implemented.
+**What this is:** Abstract interfaces that define _what_ operations are available, not _how_ they're implemented.
 
 **Why it matters:** This is the key to substrate independence. Code against interfaces, not Postgres directly.
 
 **Depends on:** 0.2
 
 **Sub-tasks:**
-- [ ] Define `NodeRepository` interface (create, get, list, update, addEdge, removeEdge)
-- [ ] Define `ObservationRepository` interface (append, query by time/type/node)
-- [ ] Define `ArtifactRepository` interface (create, get, update, list, appendRevision)
-- [ ] Define `VariableRepository` interface (create, get, update, list)
-- [ ] Define `EpisodeRepository` interface (create, get, update, list active)
-- [ ] Define `PolicyRepository` interface (create, get, update, list by node)
-- [ ] Define `ActionRunRepository` interface (create, get, update status, query pending)
-- [ ] Define `SurfaceRepository` interface (create, get, update, list by node)
-- [ ] Define `EntityRepository` interface (create, get, appendEvent, query)
-- [ ] Define `GrantRepository` interface (create, revoke, query)
-- [ ] Define `RepositoryContext` (bundles all repositories together)
+
+- [x] Define `NodeRepository` interface (create, get, list, update, addEdge, removeEdge)
+- [x] Define `ObservationRepository` interface (append, query by time/type/node)
+- [x] Define `ArtifactRepository` interface (create, get, update, list, appendRevision)
+- [x] Define `VariableRepository` interface (create, get, update, list)
+- [x] Define `EpisodeRepository` interface (create, get, update, list active)
+- [x] Define `PolicyRepository` interface (create, get, update, list by node)
+- [x] Define `ActionRunRepository` interface (create, get, update status, query pending)
+- [x] Define `SurfaceRepository` interface (create, get, update, list by node)
+- [x] Define `EntityRepository` interface (create, get, appendEvent, query)
+- [x] Define `GrantRepository` interface (create, revoke, query)
+- [x] Define `RepositoryContext` (bundles all repositories together)
 
 **Plain English:** We're defining a "contract" for each type of data. The contract says "you can do these operations" but doesn't say how. Later, we'll write a Postgres version of each contract. If we ever want IndexedDB or filesystem storage, we just write new versions that fulfill the same contracts.
 
 ---
 
-### 1.2 — Postgres Implementations
+### 1.2 — Postgres Implementations ✓
 
 **What this is:** Concrete implementations of each repository interface using Postgres.
 
@@ -122,19 +126,20 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 1.1
 
 **Sub-tasks:**
-- [ ] Set up Drizzle ORM (or similar — type-safe, migration-friendly)
-- [ ] Design schema: `nodes` table
-- [ ] Design schema: `node_edges` table
-- [ ] Design schema: `observations` table (append-only, partitioned by time if needed)
-- [ ] Design schema: `artifacts` table + `artifact_revisions` table
-- [ ] Design schema: `variables` table
-- [ ] Design schema: `episodes` table
-- [ ] Design schema: `policies` table (stores code as text or reference)
-- [ ] Design schema: `action_runs` table
-- [ ] Design schema: `surfaces` table + `surface_layouts` table
-- [ ] Design schema: `entities` table + `entity_events` table
-- [ ] Design schema: `grants` table
-- [ ] Implement each repository interface
+
+- [x] Set up Drizzle ORM (or similar — type-safe, migration-friendly)
+- [x] Design schema: `nodes` table
+- [x] Design schema: `node_edges` table
+- [x] Design schema: `observations` table (append-only, partitioned by time if needed)
+- [x] Design schema: `artifacts` table + `artifact_revisions` table
+- [x] Design schema: `variables` table
+- [x] Design schema: `episodes` table
+- [x] Design schema: `policies` table (stores code as text or reference)
+- [x] Design schema: `action_runs` table
+- [x] Design schema: `surfaces` table + `surface_layouts` table
+- [x] Design schema: `entities` table + `entity_events` table
+- [x] Design schema: `grants` table
+- [x] Implement each repository interface
 - [ ] Write integration tests (spin up test DB, run operations, verify)
 
 **Plain English:** Now we're writing the actual code that talks to Postgres. Each "contract" from 1.1 gets a concrete implementation. The rest of the app will never know it's Postgres — it just calls the interface methods.
@@ -152,6 +157,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 0.3, 1.2
 
 **Sub-tasks:**
+
 - [ ] Implement `exportBundle(repos: RepositoryContext, outputPath: string)`
 - [ ] Implement `importBundle(repos: RepositoryContext, bundlePath: string)`
 - [ ] Handle NDJSON streaming for large observation logs
@@ -163,7 +169,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 2: The Observation → Policy → Effect Loop
 
-*Build the core regulatory engine.*
+_Build the core regulatory engine._
 
 ### 2.1 — Observation Ingestion
 
@@ -174,6 +180,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 1.2
 
 **Sub-tasks:**
+
 - [ ] Create `ingestObservation(obs: Observation)` function
 - [ ] Validate observation shape and required fields
 - [ ] Enforce provenance requirements (origin, sourceId)
@@ -194,6 +201,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 0.2, 2.1
 
 **Sub-tasks:**
+
 - [ ] Create `PolicyContext` builder (assembles read-only context for policy)
 - [ ] Implement `evaluatePolicy(policy: Policy, ctx: PolicyContext): Effect[]`
 - [ ] Implement `evaluatePolicies(policies: Policy[], ctx: PolicyContext): Effect[]` with priority ordering
@@ -204,7 +212,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 **Plain English:** When an observation arrives, we need to ask "what should happen now?" Policies are the rules that answer this question. Each policy is a pure function — you give it context (the observation, the node's state, etc.) and it returns a list of effects (things that should happen). Policies run in priority order, and each one can see what the previous ones decided.
 
-**Key insight:** Policies don't *do* anything — they just *decide* what should be done. The actual doing happens in the next step.
+**Key insight:** Policies don't _do_ anything — they just _decide_ what should be done. The actual doing happens in the next step.
 
 ---
 
@@ -217,6 +225,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 2.2
 
 **Sub-tasks:**
+
 - [ ] Create effect executor registry (maps effect type to handler)
 - [ ] Implement `route_observation` handler (copy observation to another node)
 - [ ] Implement `create_entity_event` handler (append event to entity)
@@ -240,6 +249,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 2.1, 2.2, 2.3
 
 **Sub-tasks:**
+
 - [ ] Create `processObservation(obs: Observation)` that orchestrates the full loop
 - [ ] Load relevant policies for the observation's node
 - [ ] Build policy context
@@ -254,7 +264,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 3: ActionRuns (Auditable Execution)
 
-*Build the gated action system.*
+_Build the gated action system._
 
 ### 3.1 — ActionRun Lifecycle
 
@@ -265,6 +275,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 2.3
 
 **Sub-tasks:**
+
 - [ ] Implement `createActionRun(proposal: ActionProposal, policyId: string, observationId: string)`
 - [ ] Implement risk level assignment (from action definition)
 - [ ] Implement `approveActionRun(runId: string, approverNodeId: string, method: "manual" | "auto")`
@@ -286,6 +297,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 0.2
 
 **Sub-tasks:**
+
 - [ ] Define `ActionDefinition` type (name, risk level, parameters, handler)
 - [ ] Create action registry (register, lookup)
 - [ ] Implement core actions: `create_artifact`, `update_artifact`, `create_episode`, etc.
@@ -305,6 +317,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 3.1
 
 **Sub-tasks:**
+
 - [ ] Implement `AgentDelegation` storage and lookup
 - [ ] Implement `canAgentApprove(agentNodeId: string, actionRun: ActionRun): boolean`
 - [ ] Enforce `maxRiskLevel` constraint
@@ -318,7 +331,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 4: Variables and Estimation
 
-*Build the Active Inference foundation.*
+_Build the Active Inference foundation._
 
 ### 4.1 — Variable Storage
 
@@ -329,6 +342,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 1.2
 
 **Sub-tasks:**
+
 - [ ] Implement variable creation with viable/preferred ranges
 - [ ] Implement proxy attachment (link proxy specs to variables)
 - [ ] Implement variable queries (by node, by key)
@@ -347,6 +361,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 4.1, 2.1
 
 **Sub-tasks:**
+
 - [ ] Implement `evaluateProxy(proxy: ProxySpec, observations: Observation[]): number | string | boolean`
 - [ ] Support `rule` transform (simple conditionals)
 - [ ] Support `formula` transform (mathematical expressions)
@@ -367,6 +382,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 4.2
 
 **Sub-tasks:**
+
 - [ ] Implement `deriveEstimate(variable: Variable, observations: Observation[]): VariableEstimate`
 - [ ] Calculate `inViableRange` and `inPreferredRange`
 - [ ] Calculate `deviation` (0 = preferred center, 1 = outside viable)
@@ -387,6 +403,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 4.3, 2.2
 
 **Sub-tasks:**
+
 - [ ] Add `getVariableEstimate(variableId)` to policy context
 - [ ] Lazy-load estimates (don't compute until asked)
 - [ ] Cache within a single evaluation cycle
@@ -398,7 +415,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 5: Episodes (Structured Interventions)
 
-*Build the intervention coordination system.*
+_Build the intervention coordination system._
 
 ### 5.1 — Episode Lifecycle
 
@@ -409,6 +426,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 1.2
 
 **Sub-tasks:**
+
 - [ ] Implement episode creation with variable/intent bindings
 - [ ] Implement status transitions (planned → active → completed/abandoned)
 - [ ] Implement episode queries (active by node, by variable)
@@ -428,6 +446,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 5.1, 2.2
 
 **Sub-tasks:**
+
 - [ ] Add `getActiveEpisodes()` to policy context
 - [ ] Add episode-aware policy examples
 - [ ] Write tests for policies that check active episodes
@@ -438,7 +457,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 6: Entities (Durable Referents)
 
-*Build the semantic identity layer.*
+_Build the semantic identity layer._
 
 ### 6.1 — Entity Storage and Events
 
@@ -449,6 +468,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 1.2
 
 **Sub-tasks:**
+
 - [ ] Implement entity type definitions (schema for each entity kind)
 - [ ] Implement entity creation
 - [ ] Implement `appendEntityEvent(entityId, event)` (event-sourced mutation)
@@ -469,6 +489,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 6.1
 
 **Sub-tasks:**
+
 - [ ] Add `entityRefs: string[]` field to Artifact type
 - [ ] Implement entity reference resolution (artifact → entity lookup)
 - [ ] Write tests for artifact-entity relationships
@@ -479,7 +500,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 7: Access Control (Grants)
 
-*Build the authority layer.*
+_Build the authority layer._
 
 ### 7.1 — Grant Storage
 
@@ -490,6 +511,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 1.2
 
 **Sub-tasks:**
+
 - [ ] Define grant scopes (read, write, admin, specific capabilities)
 - [ ] Implement grant creation (nodeId → resourceId → scopes)
 - [ ] Implement grant revocation
@@ -509,6 +531,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 7.1
 
 **Sub-tasks:**
+
 - [ ] Implement `checkAccess(nodeId, resourceId, scope): boolean`
 - [ ] Implement access guards for repositories (refuse unauthorized operations)
 - [ ] Integrate with node edges (policies may interpret edges as implicit grants)
@@ -520,7 +543,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 8: Artifacts and Revisions
 
-*Build the content authoring layer.*
+_Build the content authoring layer._
 
 ### 8.1 — Artifact CRUD
 
@@ -531,6 +554,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 1.2
 
 **Sub-tasks:**
+
 - [ ] Implement artifact creation with required fields (about, page)
 - [ ] Implement artifact retrieval (by ID, by node)
 - [ ] Implement artifact update (creates new revision, bumps trunk version)
@@ -550,6 +574,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 8.1
 
 **Sub-tasks:**
+
 - [ ] Implement `getRevisions(artifactId): Revision[]`
 - [ ] Implement `getRevision(artifactId, version): Revision`
 - [ ] Implement revision diffing (what changed between versions)
@@ -568,6 +593,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 0.2
 
 **Sub-tasks:**
+
 - [ ] Define core block types (paragraph, heading, list, code, image, etc.)
 - [ ] Implement block validation
 - [ ] Implement block serialization/deserialization
@@ -580,7 +606,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 9: Surfaces and Layouts
 
-*Build the projection layer.*
+_Build the projection layer._
 
 ### 9.1 — Surface Storage
 
@@ -591,13 +617,14 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 1.2
 
 **Sub-tasks:**
+
 - [ ] Implement surface creation
 - [ ] Implement surface retrieval (by ID, by node, by visibility)
 - [ ] Implement surface update
 - [ ] Enforce Projection Law at storage level (surfaces reference artifacts, never embed content)
 - [ ] Write tests for surface lifecycle
 
-**Plain English:** A Surface is a view configuration — "show this artifact as a page" or "show all artifacts tagged 'journal' as a timeline." The surface says *what* to show and *how*, but the content comes from elsewhere (artifacts, entities, etc.).
+**Plain English:** A Surface is a view configuration — "show this artifact as a page" or "show all artifacts tagged 'journal' as a timeline." The surface says _what_ to show and _how_, but the content comes from elsewhere (artifacts, entities, etc.).
 
 ---
 
@@ -610,6 +637,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 9.1
 
 **Sub-tasks:**
+
 - [ ] Implement `sections` mode layouts (header, body, repeater, footer)
 - [ ] Define layout schema (positions, slots, styles)
 - [ ] Implement layout storage and retrieval
@@ -622,7 +650,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 10: Prism (The Commit Boundary)
 
-*Build the mutation gateway.*
+_Build the mutation gateway._
 
 ### 10.1 — Prism API Layer
 
@@ -633,6 +661,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** All repository implementations
 
 **Sub-tasks:**
+
 - [ ] Define Prism operation types (createArtifact, updateArtifact, createEpisode, approveAction, etc.)
 - [ ] Implement operation handlers
 - [ ] Implement transaction wrapping (all-or-nothing commits)
@@ -653,6 +682,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 10.1, 2.2
 
 **Sub-tasks:**
+
 - [ ] Implement `canon.getArtifact()`, `canon.getEntity()`, etc. in policy context
 - [ ] Ensure all accessors return frozen/immutable objects
 - [ ] Write tests verifying policies cannot mutate state
@@ -663,7 +693,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 11: Packs (Extension System)
 
-*Build the plugin architecture.*
+_Build the plugin architecture._
 
 ### 11.1 — Pack Definition Format
 
@@ -674,6 +704,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 0.2
 
 **Sub-tasks:**
+
 - [ ] Define `Pack` manifest schema (name, version, dependencies)
 - [ ] Define pack contents: sensors, policies, actions, entity types, block types
 - [ ] Implement pack validation
@@ -692,6 +723,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 11.1
 
 **Sub-tasks:**
+
 - [ ] Implement pack discovery (scan a directory, read manifests)
 - [ ] Implement pack registration (register actions, policies, etc. with their registries)
 - [ ] Handle pack dependencies (load in correct order)
@@ -704,7 +736,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 12: Replay and Determinism
 
-*Prove the system is reconstructable.*
+_Prove the system is reconstructable._
 
 ### 12.1 — Log Replay
 
@@ -715,6 +747,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 2.4, 6.1
 
 **Sub-tasks:**
+
 - [ ] Implement `replayObservationLog(observations: Observation[])` (re-evaluate policies, re-derive effects)
 - [ ] Implement `replayEntityEvents(entityId, events: EntityEvent[])` (rebuild entity state)
 - [ ] Handle ActionRun replay (don't re-execute, just use recorded results)
@@ -733,6 +766,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 12.1
 
 **Sub-tasks:**
+
 - [ ] Create determinism test harness
 - [ ] Run same observation through same policy multiple times, verify identical effects
 - [ ] Flag policies that use non-deterministic operations (random, current time, etc.)
@@ -744,7 +778,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 13: Web API Layer
 
-*Build the interface between frontend and backend.*
+_Build the interface between frontend and backend._
 
 ### 13.1 — API Routes
 
@@ -755,6 +789,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 10.1
 
 **Sub-tasks:**
+
 - [ ] Set up tRPC (or similar type-safe API layer)
 - [ ] Implement read routes: getSurface, getArtifact, getVariable, etc.
 - [ ] Implement Prism mutation routes: createArtifact, updateArtifact, etc.
@@ -776,6 +811,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 13.1
 
 **Sub-tasks:**
+
 - [ ] Implement subscription mechanism (WebSocket or SSE)
 - [ ] Publish events when observations arrive
 - [ ] Publish events when ActionRuns change status
@@ -788,7 +824,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 14: Web UI (Finally!)
 
-*Build the visual interface.*
+_Build the visual interface._
 
 ### 14.1 — Surface Renderer
 
@@ -799,6 +835,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 9.1, 9.2, 13.1
 
 **Sub-tasks:**
+
 - [ ] Implement surface fetching and caching
 - [ ] Implement layout renderer (sections mode)
 - [ ] Implement block renderers for each block type
@@ -818,6 +855,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 14.1, 10.1
 
 **Sub-tasks:**
+
 - [ ] Implement artifact editor (block-based editing)
 - [ ] Implement revision history browser
 - [ ] Implement episode creator and editor
@@ -839,6 +877,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 14.1
 
 **Sub-tasks:**
+
 - [ ] Implement node switcher
 - [ ] Implement edge visualization
 - [ ] Implement grant management UI
@@ -857,6 +896,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** 14.1
 
 **Sub-tasks:**
+
 - [ ] Implement variable estimate summary (what's in range, what's drifting)
 - [ ] Implement active episode list
 - [ ] Implement pending ActionRun queue
@@ -869,7 +909,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ## Phase 15: Polish and Integration
 
-*Tie everything together.*
+_Tie everything together._
 
 ### 15.1 — End-to-End Testing
 
@@ -880,6 +920,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** All previous phases
 
 **Sub-tasks:**
+
 - [ ] Write E2E tests for core flows (create artifact, edit, view)
 - [ ] Write E2E tests for observation → policy → action flow
 - [ ] Write E2E tests for episode lifecycle
@@ -898,6 +939,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** All previous phases
 
 **Sub-tasks:**
+
 - [ ] Implement structured error types
 - [ ] Add error boundaries in UI
 - [ ] Implement structured logging throughout
@@ -917,6 +959,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 **Depends on:** All previous phases
 
 **Sub-tasks:**
+
 - [ ] Document API routes
 - [ ] Document pack development
 - [ ] Document policy authoring
@@ -972,13 +1015,13 @@ This order prioritizes the "engine" over the "interface" — you can test the co
 
 ---
 
-*This plan is a living document. Update it as you learn.*
+_This plan is a living document. Update it as you learn._
 
 ---
 
 ## Appendix B: UX Concepts from Previous Implementation
 
-*These ideas from `/temp/projection` are worth carrying forward.*
+_These ideas from `/temp/projection` are worth carrying forward._
 
 ### The Prism Overlay (Navigation + Editing)
 
@@ -1011,14 +1054,15 @@ Fixed, always-visible elements that provide context without obscuring content.
 
 **Components:**
 
-| Element | Position | Purpose |
-|---------|----------|---------|
-| Minimap | Top-left | Shows current location in the node's surface space |
-| Menu trigger | Top-right | Opens Prism overlay |
-| Status indicators | Bottom-left | Variable estimates, episode status |
-| Action queue | Bottom-right | Pending approvals count |
+| Element           | Position     | Purpose                                            |
+| ----------------- | ------------ | -------------------------------------------------- |
+| Minimap           | Top-left     | Shows current location in the node's surface space |
+| Menu trigger      | Top-right    | Opens Prism overlay                                |
+| Status indicators | Bottom-left  | Variable estimates, episode status                 |
+| Action queue      | Bottom-right | Pending approvals count                            |
 
 **Minimap Behavior:**
+
 - 68×68px grid showing available surfaces as dots
 - Animated indicator tracking cursor (desktop) or scroll (mobile)
 - Click to open full Prism overlay
@@ -1033,16 +1077,19 @@ Fixed, always-visible elements that provide context without obscuring content.
 The map is an **abstract spatial representation** of surfaces, not a geographic visualization.
 
 **Two views:**
+
 - **Local View**: Surfaces within current node, scattered in 2D space
 - **World View**: All nodes, for cross-node navigation
 
 **Interaction:**
+
 - Ctrl/Cmd + scroll to zoom (0.5x to 3x)
 - Drag to pan when zoomed
 - Click surface to navigate
 - Pinch-to-zoom on touch
 
 **Visual language:**
+
 - Surfaces positioned intentionally (not a grid — memorable spatial layout)
 - Categories color-coded (exhibit, plaza, device)
 - Locked surfaces show ⟠ icon
@@ -1056,15 +1103,16 @@ The map is an **abstract spatial representation** of surfaces, not a geographic 
 
 Instead of separate pages, operational tools render **inside** the Prism overlay as tabs:
 
-| Panel | Purpose |
-|-------|---------|
+| Panel   | Purpose                                                         |
+| ------- | --------------------------------------------------------------- |
 | Sensors | Observation ingestion (drag-drop CSV, domain status, staleness) |
-| Process | Document viewer (org docs, policies) |
-| Audio | Playback controls (if applicable) |
+| Process | Document viewer (org docs, policies)                            |
+| Audio   | Playback controls (if applicable)                               |
 
 **Why this matters:** Keeps the user in context. Opening a tool doesn't break your sense of location.
 
 **Protocol mapping:**
+
 - Sensors panel → Observation ingestion
 - Process panel → Artifact/policy viewing
 - Could add: Variables panel, Episodes panel, ActionRuns panel
@@ -1076,6 +1124,7 @@ Instead of separate pages, operational tools render **inside** the Prism overlay
 The previous implementation had a sophisticated observation UI:
 
 **Domain Status Cards:**
+
 ```
 ┌─────────────────────────────────────┐
 │  Sleep                    ● Fresh   │
@@ -1086,6 +1135,7 @@ The previous implementation had a sophisticated observation UI:
 ```
 
 **Staleness indicators:**
+
 - Fresh (green): Recent observations within expected cadence
 - Stale (yellow): Overdue for new observations
 - Old (red): Significantly overdue
@@ -1102,12 +1152,13 @@ Surfaces have visibility rules, visualized clearly:
 
 ```typescript
 interface SurfaceAccess {
-  requiredAccess: "anonymous" | "viewer" | "supporter" | "admin";
-  ifLocked: "hide" | "show";  // hide entirely or show with lock icon
+  requiredAccess: 'anonymous' | 'viewer' | 'supporter' | 'admin';
+  ifLocked: 'hide' | 'show'; // hide entirely or show with lock icon
 }
 ```
 
 **Visual treatment:**
+
 - Accessible surfaces: normal appearance
 - Locked surfaces (ifLocked: "show"): dimmed with ⟠ icon
 - Locked surfaces (ifLocked: "hide"): not rendered at all
@@ -1131,6 +1182,7 @@ Runtime navigation
 ```
 
 **Why this matters:**
+
 - New surfaces appear automatically (no route hardcoding)
 - Navigation reflects canonical state (Projection Law)
 - Single source of truth
@@ -1186,17 +1238,20 @@ const useDeviceCapabilities = () => {
 From the CSS patterns in the previous implementation:
 
 **Color palette:**
+
 - Background: pure black (#000)
 - Text: low-contrast white (rgba(255,255,255, 0.6-0.9))
 - Accents: subtle glows, not bright colors
 - Status: green (fresh), yellow (stale), red (old)
 
 **Typography:**
+
 - Monospace for data
 - Sans-serif for navigation
 - Large, readable text with generous spacing
 
 **Patterns:**
+
 - Grid backgrounds (scanner aesthetic)
 - Crosshair overlays in map view
 - Staggered animation entrance (0.08s per item)
@@ -1208,17 +1263,17 @@ From the CSS patterns in the previous implementation:
 
 ### Mapping Previous Concepts to Protocol
 
-| Previous Concept | Protocol Equivalent | Notes |
-|-----------------|---------------------|-------|
-| Prism overlay | Prism (commit boundary) | Same name, expanded role |
-| Surfaces (navigation) | Surfaces | Direct mapping |
-| Nodes (org, personal) | Nodes | Direct mapping |
-| Device panels | Specialized Surfaces | kind: "device" vs kind: "page" |
-| Sensor ingestion | Observation ingestion | Direct mapping |
-| Domain status | Variable + Proxy | Staleness = estimate confidence |
-| Access levels | Grants | Direct mapping |
-| Hero's Journey | Artifacts + Entities | Stages as artifacts, songs as entities |
-| Map positions | Surface metadata | Could be stored in Surface or Layout |
+| Previous Concept      | Protocol Equivalent     | Notes                                  |
+| --------------------- | ----------------------- | -------------------------------------- |
+| Prism overlay         | Prism (commit boundary) | Same name, expanded role               |
+| Surfaces (navigation) | Surfaces                | Direct mapping                         |
+| Nodes (org, personal) | Nodes                   | Direct mapping                         |
+| Device panels         | Specialized Surfaces    | kind: "device" vs kind: "page"         |
+| Sensor ingestion      | Observation ingestion   | Direct mapping                         |
+| Domain status         | Variable + Proxy        | Staleness = estimate confidence        |
+| Access levels         | Grants                  | Direct mapping                         |
+| Hero's Journey        | Artifacts + Entities    | Stages as artifacts, songs as entities |
+| Map positions         | Surface metadata        | Could be stored in Surface or Layout   |
 
 ---
 
@@ -1227,6 +1282,7 @@ From the CSS patterns in the previous implementation:
 Based on these concepts, consider adding to Phase 14:
 
 **14.0 — HUD Framework**
+
 - [ ] Implement fixed HUD container
 - [ ] Implement Minimap component
 - [ ] Implement Menu trigger
@@ -1234,6 +1290,7 @@ Based on these concepts, consider adding to Phase 14:
 - [ ] Implement action queue badge
 
 **14.1.5 — Map Navigation**
+
 - [ ] Implement local/world view toggle
 - [ ] Implement zoom/pan mechanics
 - [ ] Implement surface positioning (percentage-based)
@@ -1241,6 +1298,7 @@ Based on these concepts, consider adding to Phase 14:
 - [ ] Implement access visualization (locked surfaces)
 
 **14.2.5 — Device Panels in Prism**
+
 - [ ] Implement tab system for devices
 - [ ] Implement Sensors panel (observation ingestion)
 - [ ] Implement Variables panel (estimate dashboard)
@@ -1263,4 +1321,4 @@ Based on these concepts, consider adding to Phase 14:
 
 ---
 
-*These UX concepts provide a strong foundation. They're not mandatory — adapt as you build.*
+_These UX concepts provide a strong foundation. They're not mandatory — adapt as you build._

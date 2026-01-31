@@ -11,3 +11,4 @@
 // - Code against interfaces to maintain substrate independence
 
 export * from './interfaces/index.js';
+export * as postgres from './postgres/index.js';
