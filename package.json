@@ -1,24 +1,27 @@
 {
-  "name": "numinous-web",
+  "name": "omnilith",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "dev": "pnpm --filter @omnilith/web dev",
+    "build": "pnpm -r build",
+    "lint": "eslint packages/*/src",
+    "test": "pnpm -r test",
+    "check": "pnpm lint && pnpm build && pnpm test",
+    "clean": "pnpm -r clean",
+    "format": "prettier --write \"packages/*/src/**/*.ts\""
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@eslint/js": "^9",
+    "@types/node": "^22",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "typescript": "^5"
+    "prettier": "^3.4.2",
+    "typescript": "^5.7",
+    "typescript-eslint": "^8"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
   }
 }

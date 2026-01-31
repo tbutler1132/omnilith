@@ -1,4 +1,4 @@
-# CLAUDE.md — Lucidness Protocol
+# CLAUDE.md — Omnilith Protocol
 
 This is a **protocol for intentional state**, not a SaaS product. The web app, database, and runtime are interpreters of the protocol — not the source of truth.
 
@@ -51,7 +51,7 @@ Agents (Agent-Nodes) operate with delegated authority from a Subject-Node.
 
 - Agents CANNOT approve their own high-risk actions
 - Agents CANNOT grant authority to other agents
-- All agent-created content has `provenance.origin: "synthetic"`
+- All agent-created content has `provenance.method: "agent_inference"` (or similar)
 - Risk levels: `low` (auto-approve) → `medium` → `high` → `critical` (human required)
 
 ## Project Structure
@@ -79,7 +79,7 @@ npm run test       # run tests
 - **Derived state is never canon.** Caches, materialized views, estimates — all must be reconstructable.
 - **Effects are namespaced.** Pack effects use `pack:name:action` format.
 - **Risk is declared, not inferred.** Actions declare their risk level; policies can escalate but not reduce.
-- **Provenance is mandatory.** Every observation must declare organic/synthetic origin.
+- **Provenance is mandatory.** Every observation must have provenance (sourceId, method, confidence).
 
 ## When Working on This Codebase
 

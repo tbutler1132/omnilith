@@ -1,4 +1,4 @@
-# SPEC.md — Lucidness Protocol (Web Interpreter v1)
+# SPEC.md — Omnilith Protocol (Web Interpreter v1)
 
 > **Canonical Identity Statement (Non‑Negotiable)**
 >
@@ -59,12 +59,12 @@ Canon is NOT:
 
 ---
 
-### 0.3 Canonical Wire Format — Lucidness Bundle
+### 0.3 Canonical Wire Format — Omnilith Bundle
 
-The protocol’s canonical interchange format is a **Lucidness Bundle**.
+The protocol’s canonical interchange format is a **Omnilith Bundle**.
 
 ```
-/lucidness-bundle
+/omnilith-bundle
   /nodes
     /<nodeId>
       node.json
@@ -121,7 +121,7 @@ All substrates MUST implement identical repository interfaces.
 ### 0.5 Determinism & Replay
 
 Any compliant interpreter MUST be able to:
-1. Load canon from a Lucidness Bundle
+1. Load canon from a Omnilith Bundle
 2. Replay event logs in order
 3. Rebuild derived state
 4. Produce deterministic results
@@ -345,7 +345,6 @@ export type Observation = {
 };
 
 export type Provenance = {
-  origin: "organic" | "synthetic";
   sourceId: string;              // Subject‑Node or Agent‑Node ID
   sponsorId?: string;            // For agents: the delegating Subject‑Node
   method?: string;               // e.g., "manual_entry", "sensor_ingest", "agent_inference"
@@ -355,8 +354,8 @@ export type Provenance = {
 
 **Provenance Rules:**
 - All observations MUST have provenance.
-- `organic` = created by a human (Subject‑Node) directly.
-- `synthetic` = created by an agent, sensor, or automated process.
+- `method` describes how the observation was created (e.g., "manual_entry", "sensor_ingest", "agent_inference").
+- `confidence` indicates reliability for agent-generated observations.
 - Provenance is immutable once recorded.
 - Policies MAY filter or weight observations by provenance.
 
@@ -366,7 +365,7 @@ Observations are append‑only and replayable.
 
 ## 8.1 Variables, Proxies, and Viable Ranges (Active Inference Core)
 
-The protocol is compatible with Active Inference and cybernetic regulation. To make that explicit, Lucidness treats **Variables** as first-class canon objects whose values can be inferred from observations and stabilized through policies and actions.
+The protocol is compatible with Active Inference and cybernetic regulation. To make that explicit, Omnilith treats **Variables** as first-class canon objects whose values can be inferred from observations and stabilized through policies and actions.
 
 ### 8.1.1 Variable
 
@@ -762,7 +761,7 @@ These are implementation choices, not protocol requirements.
 ## 17) Compatibility Statement
 
 Any future system that:
-- Reads the Lucidness Bundle
+- Reads the Omnilith Bundle
 - Replays logs
 - Evaluates policies
 - Respects the Projection Law

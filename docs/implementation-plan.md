@@ -1,6 +1,6 @@
-# Lucidness Protocol — Implementation Plan
+# Omnilith Protocol — Implementation Plan
 
-> **Goal:** Build a working v1 web interpreter of the Lucidness Protocol, prioritizing clean boundaries, substrate flexibility, and logical dependency order. UI comes last.
+> **Goal:** Build a working v1 web interpreter of the Omnilith Protocol, prioritizing clean boundaries, substrate flexibility, and logical dependency order. UI comes last.
 
 ---
 
@@ -66,7 +66,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ---
 
-### 0.3 — Protocol Package: Lucidness Bundle Schema
+### 0.3 — Protocol Package: Omnilith Bundle Schema
 
 **What this is:** Define the canonical file/folder format for exporting and importing protocol state.
 
@@ -80,7 +80,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 - [ ] Define NDJSON log format helpers (parse/stringify line-by-line)
 - [ ] Write bundle validation function (does this folder have everything it needs?)
 
-**Plain English:** If you wanted to back up your entire system to a folder, or move it to a different app, this is the format. Think of it like a standard "zip file structure" that any Lucidness-compatible tool can understand.
+**Plain English:** If you wanted to back up your entire system to a folder, or move it to a different app, this is the format. Think of it like a standard "zip file structure" that any Omnilith-compatible tool can understand.
 
 ---
 
@@ -145,7 +145,7 @@ Each **Phase** is a major milestone. Each phase contains **Sub-Plans** — small
 
 ### 1.3 — Bundle Import/Export
 
-**What this is:** Functions to export the entire database to a Lucidness Bundle folder, and import from one.
+**What this is:** Functions to export the entire database to a Omnilith Bundle folder, and import from one.
 
 **Why it matters:** Proves the system is portable. Also useful for backups and migrations.
 
