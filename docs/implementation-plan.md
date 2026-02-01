@@ -266,7 +266,7 @@ _Build the core regulatory engine._
 
 _Build the gated action system._
 
-### 3.1 — ActionRun Lifecycle
+### 3.1 — ActionRun Lifecycle ✓
 
 **What this is:** The state machine for actions — from proposal to execution.
 
@@ -276,19 +276,19 @@ _Build the gated action system._
 
 **Sub-tasks:**
 
-- [ ] Implement `createActionRun(proposal: ActionProposal, policyId: string, observationId: string)`
-- [ ] Implement risk level assignment (from action definition)
-- [ ] Implement `approveActionRun(runId: string, approverNodeId: string, method: "manual" | "auto")`
-- [ ] Implement `rejectActionRun(runId: string, reason: string)`
-- [ ] Implement `executeActionRun(runId: string)` with result/error capture
-- [ ] Implement auto-approval for `low` risk actions
-- [ ] Write tests for each state transition
+- [x] Implement `createActionRun(proposal: ActionProposal, policyId: string, observationId: string)`
+- [x] Implement risk level assignment (from action definition)
+- [x] Implement `approveActionRun(runId: string, approverNodeId: string, method: "manual" | "auto")`
+- [x] Implement `rejectActionRun(runId: string, reason: string)`
+- [x] Implement `executeActionRun(runId: string)` with result/error capture
+- [x] Implement auto-approval for `low` risk actions
+- [x] Write tests for each state transition
 
 **Plain English:** When a policy says "we should do X," it doesn't just happen. It creates an ActionRun — a record that says "someone proposed X." Then, depending on how risky X is, it either auto-approves or waits for a human. Once approved, it executes and records the result. Every step is logged so you can audit later.
 
 ---
 
-### 3.2 — Action Registry
+### 3.2 — Action Registry ✓
 
 **What this is:** A registry of available actions and their definitions.
 
@@ -298,17 +298,17 @@ _Build the gated action system._
 
 **Sub-tasks:**
 
-- [ ] Define `ActionDefinition` type (name, risk level, parameters, handler)
-- [ ] Create action registry (register, lookup)
-- [ ] Implement core actions: `create_artifact`, `update_artifact`, `create_episode`, etc.
-- [ ] Make registry extensible for pack actions
-- [ ] Write tests for action registration and lookup
+- [x] Define `ActionDefinition` type (name, risk level, parameters, handler)
+- [x] Create action registry (register, lookup)
+- [x] Implement core actions: `create_artifact`, `update_artifact`, `create_episode`, etc.
+- [x] Make registry extensible for pack actions
+- [x] Write tests for action registration and lookup
 
 **Plain English:** Before you can propose "send an email," the system needs to know what "send an email" means — what parameters it needs, how risky it is, and what code to run. The action registry is where all these definitions live.
 
 ---
 
-### 3.3 — Delegation and Agent Constraints
+### 3.3 — Delegation and Agent Constraints ✓
 
 **What this is:** Enforce what agents can and cannot do.
 
@@ -318,12 +318,12 @@ _Build the gated action system._
 
 **Sub-tasks:**
 
-- [ ] Implement `AgentDelegation` storage and lookup
-- [ ] Implement `canAgentApprove(agentNodeId: string, actionRun: ActionRun): boolean`
-- [ ] Enforce `maxRiskLevel` constraint
-- [ ] Enforce `allowedEffects` constraint
-- [ ] Enforce `expiresAt` constraint
-- [ ] Write tests for delegation scenarios
+- [x] Implement `AgentDelegation` storage and lookup
+- [x] Implement `canAgentApprove(agentNodeId: string, actionRun: ActionRun): boolean`
+- [x] Enforce `maxRiskLevel` constraint
+- [x] Enforce `allowedEffects` constraint
+- [x] Enforce `expiresAt` constraint
+- [x] Write tests for delegation scenarios
 
 **Plain English:** Agents (automated actors) can only do what they've been given permission to do. If an agent tries to approve a high-risk action but it's only allowed up to medium, the system blocks it. These rules are checked automatically.
 
