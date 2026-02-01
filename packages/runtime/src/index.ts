@@ -12,6 +12,9 @@ export {
   PolicyExecutionError,
   PolicyTimeoutError,
   InvalidEffectError,
+  EffectExecutionError,
+  UnknownEffectError,
+  EntityNotFoundError,
 } from './errors.js';
 
 // Ingestion
@@ -44,3 +47,40 @@ export {
   type PolicyEvaluationResult,
   type PoliciesEvaluationResult,
 } from './policies/index.js';
+
+// Effect execution
+export {
+  // Types
+  type EffectExecutionContext,
+  type EffectExecutionResult,
+  type EffectsExecutionResult,
+  type EffectHandler,
+  type EffectLogger,
+  type LogEntry,
+  type ExecuteEffectsOptions,
+  // Loggers
+  consoleLogger,
+  silentLogger,
+  createCapturingLogger,
+  // Registry
+  effectRegistry,
+  isPackEffect,
+  parsePackEffect,
+  packEffectType,
+  // Handlers
+  routeObservationHandler,
+  createEntityEventHandler,
+  proposeActionHandler,
+  tagObservationHandler,
+  suppressHandler,
+  logHandler,
+  builtInHandlers,
+  // Executor
+  executeEffect,
+  executeEffects,
+  createExecutionContext,
+  registerEffectHandler,
+  unregisterEffectHandler,
+  hasEffectHandler,
+  getRegisteredEffectTypes,
+} from './effects/index.js';

@@ -133,3 +133,48 @@ export class InvalidEffectError extends ValidationError {
     this.effect = effect;
   }
 }
+
+/**
+ * Error when effect execution fails.
+ */
+export class EffectExecutionError extends RuntimeError {
+  readonly effectType: string;
+  readonly policyId: string;
+  readonly cause?: Error;
+
+  constructor(effectType: string, policyId: string, reason: string, cause?: Error) {
+    super('EFFECT_EXECUTION_ERROR', `Effect "${effectType}" failed: ${reason}`);
+    this.name = 'EffectExecutionError';
+    this.effectType = effectType;
+    this.policyId = policyId;
+    this.cause = cause;
+  }
+}
+
+/**
+ * Error when an unknown effect type is encountered.
+ */
+export class UnknownEffectError extends RuntimeError {
+  readonly effectType: string;
+  readonly policyId: string;
+
+  constructor(effectType: string, policyId: string) {
+    super('UNKNOWN_EFFECT', `Unknown effect type "${effectType}" from policy ${policyId}`);
+    this.name = 'UnknownEffectError';
+    this.effectType = effectType;
+    this.policyId = policyId;
+  }
+}
+
+/**
+ * Error when a referenced entity is not found.
+ */
+export class EntityNotFoundError extends RuntimeError {
+  readonly entityId: string;
+
+  constructor(entityId: string) {
+    super('ENTITY_NOT_FOUND', `Entity not found: ${entityId}`);
+    this.name = 'EntityNotFoundError';
+    this.entityId = entityId;
+  }
+}

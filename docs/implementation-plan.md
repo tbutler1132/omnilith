@@ -216,7 +216,7 @@ _Build the core regulatory engine._
 
 ---
 
-### 2.3 — Effect Execution
+### 2.3 — Effect Execution ✓
 
 **What this is:** Takes the effects returned by policies and makes them real.
 
@@ -226,15 +226,15 @@ _Build the core regulatory engine._
 
 **Sub-tasks:**
 
-- [ ] Create effect executor registry (maps effect type to handler)
-- [ ] Implement `route_observation` handler (copy observation to another node)
-- [ ] Implement `create_entity_event` handler (append event to entity)
-- [ ] Implement `propose_action` handler (create pending ActionRun)
-- [ ] Implement `tag_observation` handler (add tags to observation)
-- [ ] Implement `suppress` handler (already handled in evaluation, but log it)
-- [ ] Implement `log` handler (write to structured log)
-- [ ] Make registry extensible for pack effects
-- [ ] Write tests for each effect type
+- [x] Create effect executor registry (maps effect type to handler)
+- [x] Implement `route_observation` handler (copy observation to another node)
+- [x] Implement `create_entity_event` handler (append event to entity)
+- [x] Implement `propose_action` handler (create pending ActionRun)
+- [x] Implement `tag_observation` handler (add tags to observation)
+- [x] Implement `suppress` handler (already handled in evaluation, but log it)
+- [x] Implement `log` handler (write to structured log)
+- [x] Make registry extensible for pack effects
+- [x] Write tests for each effect type
 
 **Plain English:** Effects are like instructions: "route this observation to Node X" or "propose an action to send an email." The effect executor reads each instruction and carries it out. This is where side effects happen — writing to the database, queuing actions, etc.
 
