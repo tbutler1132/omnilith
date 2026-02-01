@@ -1,6 +1,6 @@
 import { pgTable, text, timestamp, jsonb, real, index } from 'drizzle-orm/pg-core';
 import { nodes } from './nodes.js';
-import type { ViableRange, ProxySpec } from '@omnilith/protocol';
+import type { ViableRange, ComputeSpec } from '@omnilith/protocol';
 
 /**
  * Variables table - regulated quantities with viable ranges.
@@ -21,7 +21,7 @@ export const variables = pgTable(
     unit: text('unit'), // e.g., "hours", "%", "score"
     viableRange: jsonb('viable_range').$type<ViableRange>(),
     preferredRange: jsonb('preferred_range').$type<ViableRange>(),
-    proxies: jsonb('proxies').$type<ProxySpec[]>().notNull().default([]),
+    computeSpecs: jsonb('compute_specs').$type<ComputeSpec[]>().notNull().default([]),
     prior: jsonb('prior').$type<unknown>(),
     target: jsonb('target').$type<unknown>(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

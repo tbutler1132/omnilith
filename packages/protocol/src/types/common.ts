@@ -57,21 +57,52 @@ export type QuerySpec = {
 };
 
 /**
- * Observation filter for querying the observation log
+ * Observation filter for querying the observation log.
+ *
+ * IMPORTANT: To prevent unbounded I/O, limit is required and capped at 1000.
+ * Repository implementations MUST enforce a default limit of 100 and
+ * a default window of 24 hours if not specified.
  */
 export type ObservationFilter = {
   nodeId?: Id;
   type?: string;
   typePrefix?: string;
   tags?: string[];
+
+  /**
+   * Time window for filtering observations.
+   * If not specified, defaults to last 24 hours.
+   */
+  window?: {
+    /**
+     * Only include observations from the last N hours
+     */
+    hours?: number;
+
+    /**
+     * Only include observations after this timestamp
+     */
+    since?: Timestamp;
+  };
+
+  /**
+   * Legacy time range filter (prefer 'window' for new code)
+   */
   timeRange?: {
     start?: Timestamp;
     end?: Timestamp;
   };
+
   provenance?: {
     origin?: 'organic' | 'synthetic';
     sourceId?: Id;
   };
-  limit?: number;
+
+  /**
+   * Maximum number of results to return.
+   * Required. Max 1000, default 100.
+   */
+  limit: number;
+
   offset?: number;
 };

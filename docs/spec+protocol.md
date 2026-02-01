@@ -139,6 +139,27 @@ Policies MUST be pure, deterministic, and side‑effect free.
 
 ---
 
+### 0.6 Performance Invariants
+
+To prevent unbounded I/O and ensure predictable policy evaluation, the protocol enforces query limits.
+
+**Observation Query Limits:**
+- All observation queries MUST include a `limit` parameter
+- Maximum limit: 1000 observations per query
+- Default limit (if not specified): 100 observations
+- Default time window (if not specified): 24 hours
+
+**Rationale:** Observation logs grow unboundedly. Without limits, a naive policy could scan the entire history on every evaluation, causing O(n) I/O growth. Limits force policy authors to think about recency and relevance.
+
+**Implementation:** Repository implementations MUST:
+1. Enforce a maximum limit of 1000, even if a higher value is requested
+2. Apply a default limit of 100 if none is specified
+3. Apply a default 24-hour window if no time constraint is specified
+
+Policies that need historical analysis beyond these limits should use pre-computed aggregations or materialized views (which are non-canonical caches).
+
+---
+
 ## 1) Product Shape (Interpreter Description)
 
 The v1 web interpreter renders a world of **Nodes** through **Surfaces** and enables authoring and regulation through a persistent overlay called **Prism**.
@@ -318,6 +339,32 @@ layout.mode = "sections" | "canvas";
 
 The underlying layout data model is shared.
 
+### 6.2 Shared vs Inline Layouts
+
+Surfaces can reference layouts in two ways:
+
+1. **Shared Layout** (`layoutId`): Reference a reusable SurfaceLayout by ID. Use for layouts shared across multiple surfaces.
+
+2. **Inline Layout** (`inlineLayout`): Embed layout configuration directly in the Surface. Use for simple, one-off layouts that don't need to be shared.
+
+```ts
+Surface = {
+  // ... other fields
+  layoutId?: string;           // Reference shared layout
+  inlineLayout?: LayoutSpec;   // OR define inline (mutually exclusive)
+};
+
+LayoutSpec = {
+  mode: "sections" | "canvas";
+  sections?: LayoutSection[];
+  canvas?: { width: number; height: number; elements: unknown[] };
+};
+```
+
+**Constraint:** `layoutId` and `inlineLayout` are mutually exclusive. A Surface MUST NOT have both set.
+
+**Recommendation:** Prefer `inlineLayout` for surfaces with simple, unique layouts. Use `layoutId` when multiple surfaces share the same layout structure.
+
 ---
 
 ## 7) Prism (Commit Boundary)
@@ -390,7 +437,7 @@ export type Variable = {
   viableRange?: ViableRange;
   preferredRange?: ViableRange;
 
-  proxies: ProxySpec[];
+  computeSpecs: ComputeSpec[];
 
   // optional priors / targets used by policies (not required in v1)
   prior?: unknown;
@@ -410,31 +457,41 @@ export type ViableRange = {
 };
 ```
 
-### 8.1.2 Proxy
+### 8.1.2 ComputeSpec
 
-A **Proxy** defines how a Variable is estimated from raw signals (observations and/or artifact state). Proxies do not store derived state in canon; they define *how to derive it*.
+A **ComputeSpec** defines how a Variable is estimated from observations. ComputeSpecs do not store derived state in canon; they define *how to derive it*.
+
+v1 simplifies the original ProxySpec design to support common aggregation patterns without requiring custom transform logic.
 
 ```ts
-export type ProxySpec = {
+export type ComputeSpec = {
   id: string;
-  title: string;
 
-  // where the signal comes from
-  sources: Array<{
-    observationType?: string;   // e.g. "health.sleep"
-    artifactQuery?: QuerySpec;  // optional
-  }>;
+  // Observation types to include (exact match or prefix with "*")
+  observationTypes: string[];   // e.g. ["health.sleep", "health.exercise"]
 
-  // how to map signals to an estimate
-  transform: {
-    kind: "rule" | "formula" | "model";
-    body: unknown;              // interpreter-defined
+  // How to aggregate matching observations
+  aggregation: "latest" | "sum" | "avg" | "count" | "min" | "max";
+
+  // Optional window to limit scope
+  window?: {
+    hours?: number;             // Only consider last N hours
+    count?: number;             // Only consider last N observations
   };
 
-  // confidence / reliability hints for policies
+  // Confidence / reliability hint for policies
   confidence?: number;          // 0..1
 };
 ```
+
+**Aggregation Methods:**
+- `latest`: Most recent observation's payload value
+- `sum`: Sum of numeric payload values
+- `avg`: Average of numeric payload values
+- `count`: Number of matching observations
+- `min`/`max`: Minimum/maximum of numeric payload values
+
+**Window Semantics:** When both `hours` and `count` are specified, the time filter is applied first, then the count limit.
 
 **Invariant:** Variable values shown in Surfaces are projections, derived at render-time or via cached materializations. Any cache is non-canonical and must be reconstructable.
 
@@ -575,12 +632,17 @@ export type PolicyContext = {
   // Accumulated effects from higher-priority policies
   priorEffects: Effect[];
 
-  // Read-only access to canon
+  // Read-only access to canon (with I/O limits enforced)
   canon: {
     getArtifact(id: string): Artifact | null;
     getEntity(id: string): Entity | null;
     getVariable(id: string): Variable | null;
     getActiveEpisodes(): Episode[];
+
+    /**
+     * Query observations with enforced limits.
+     * See §0.6 Performance Invariants for limit details.
+     */
     queryObservations(filter: ObservationFilter): Observation[];
   };
 
@@ -600,6 +662,34 @@ export type PolicyContext = {
 - `canon` accessors are read-only snapshots; mutations have no effect.
 - `priorEffects` enables policy coordination without shared mutable state.
 - Context is reconstructed identically during replay.
+
+**ObservationFilter (with required limits):**
+
+```ts
+export type ObservationFilter = {
+  nodeId?: string;
+  type?: string;                // Exact type match
+  typePrefix?: string;          // Type prefix match
+
+  // Time window (prefer over legacy timeRange)
+  window?: {
+    hours?: number;             // Last N hours
+    since?: string;             // After this timestamp
+  };
+
+  // Legacy time range (for backwards compatibility)
+  timeRange?: {
+    start?: string;
+    end?: string;
+  };
+
+  // REQUIRED: Maximum results (max 1000, default 100)
+  limit: number;
+  offset?: number;
+};
+```
+
+See §0.6 for enforcement details.
 
 ### 9.2 Effect Vocabulary (v1)
 

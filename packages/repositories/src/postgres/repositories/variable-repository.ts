@@ -7,7 +7,7 @@ import type {
   UpdateVariableInput,
   VariableFilter,
 } from '../../interfaces/index.js';
-import type { Variable, ProxySpec, Id } from '@omnilith/protocol';
+import type { Variable, ComputeSpec, Id } from '@omnilith/protocol';
 
 export class PgVariableRepository implements VariableRepository {
   constructor(private db: Database) {}
@@ -28,7 +28,7 @@ export class PgVariableRepository implements VariableRepository {
         unit: input.unit,
         viableRange: input.viableRange,
         preferredRange: input.preferredRange,
-        proxies: input.proxies ?? [],
+        computeSpecs: input.computeSpecs ?? [],
         prior: input.prior,
         target: input.target,
         createdAt: now,
@@ -103,16 +103,16 @@ export class PgVariableRepository implements VariableRepository {
     return row ? this.rowToVariable(row) : null;
   }
 
-  async addProxy(variableId: Id, proxy: ProxySpec): Promise<Variable | null> {
+  async addComputeSpec(variableId: Id, spec: ComputeSpec): Promise<Variable | null> {
     const variable = await this.get(variableId);
     if (!variable) return null;
 
-    const updatedProxies = [...variable.proxies, proxy];
+    const updatedSpecs = [...variable.computeSpecs, spec];
 
     const [row] = await this.db
       .update(variables)
       .set({
-        proxies: updatedProxies,
+        computeSpecs: updatedSpecs,
         updatedAt: new Date(),
       })
       .where(eq(variables.id, variableId))
@@ -121,22 +121,22 @@ export class PgVariableRepository implements VariableRepository {
     return row ? this.rowToVariable(row) : null;
   }
 
-  async updateProxy(
+  async updateComputeSpec(
     variableId: Id,
-    proxyId: Id,
-    proxy: Partial<ProxySpec>
+    specId: Id,
+    spec: Partial<ComputeSpec>
   ): Promise<Variable | null> {
     const variable = await this.get(variableId);
     if (!variable) return null;
 
-    const updatedProxies = variable.proxies.map((p) =>
-      p.id === proxyId ? { ...p, ...proxy } : p
+    const updatedSpecs = variable.computeSpecs.map((s) =>
+      s.id === specId ? { ...s, ...spec } : s
     );
 
     const [row] = await this.db
       .update(variables)
       .set({
-        proxies: updatedProxies,
+        computeSpecs: updatedSpecs,
         updatedAt: new Date(),
       })
       .where(eq(variables.id, variableId))
@@ -145,16 +145,16 @@ export class PgVariableRepository implements VariableRepository {
     return row ? this.rowToVariable(row) : null;
   }
 
-  async removeProxy(variableId: Id, proxyId: Id): Promise<Variable | null> {
+  async removeComputeSpec(variableId: Id, specId: Id): Promise<Variable | null> {
     const variable = await this.get(variableId);
     if (!variable) return null;
 
-    const updatedProxies = variable.proxies.filter((p) => p.id !== proxyId);
+    const updatedSpecs = variable.computeSpecs.filter((s) => s.id !== specId);
 
     const [row] = await this.db
       .update(variables)
       .set({
-        proxies: updatedProxies,
+        computeSpecs: updatedSpecs,
         updatedAt: new Date(),
       })
       .where(eq(variables.id, variableId))
@@ -183,7 +183,7 @@ export class PgVariableRepository implements VariableRepository {
       unit: row.unit ?? undefined,
       viableRange: row.viableRange ?? undefined,
       preferredRange: row.preferredRange ?? undefined,
-      proxies: row.proxies,
+      computeSpecs: row.computeSpecs,
       prior: row.prior ?? undefined,
       target: row.target ?? undefined,
       createdAt: row.createdAt.toISOString(),

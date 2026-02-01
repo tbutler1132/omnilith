@@ -1,7 +1,7 @@
 import { pgTable, text, timestamp, jsonb, index } from 'drizzle-orm/pg-core';
 import { nodes } from './nodes.js';
 import { artifacts } from './artifacts.js';
-import type { QuerySpec, LayoutSection, SurfaceKind, SurfaceVisibility, LayoutMode } from '@omnilith/protocol';
+import type { QuerySpec, LayoutSection, SurfaceKind, SurfaceVisibility, LayoutMode, LayoutSpec } from '@omnilith/protocol';
 
 /**
  * Surface layouts table - controls how content is arranged.
@@ -57,6 +57,7 @@ export const surfaces = pgTable(
     entryArtifactId: text('entry_artifact_id').references(() => artifacts.id),
     entryQuery: jsonb('entry_query').$type<QuerySpec>(),
     layoutId: text('layout_id').references(() => surfaceLayouts.id),
+    inlineLayout: jsonb('inline_layout').$type<LayoutSpec>(),
     mapPosition: jsonb('map_position').$type<{ left: string; top: string }>(),
     category: text('category'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

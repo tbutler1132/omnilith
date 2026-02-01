@@ -1,6 +1,6 @@
 // Variable types - the Active Inference core
 
-import type { Id, Timestamp, QuerySpec } from './common.js';
+import type { Id, Timestamp } from './common.js';
 
 /**
  * Variable kinds determine how values are interpreted
@@ -38,42 +38,42 @@ export type ViableRange = {
 };
 
 /**
- * A ProxySpec defines how to estimate a variable from observations
+ * Aggregation methods for computing variable estimates from observations
  */
-export type ProxySpec = {
+export type AggregationMethod = 'latest' | 'sum' | 'avg' | 'count' | 'min' | 'max';
+
+/**
+ * A ComputeSpec defines how to estimate a variable from observations.
+ * Simplified from v0 ProxySpec for v1 - supports filtering observations by type
+ * and applying a standard aggregation over a time/count window.
+ */
+export type ComputeSpec = {
   id: Id;
-  title: string;
 
   /**
-   * Where the signal comes from
+   * Observation types to include (exact match or prefix with "*")
+   * e.g., ["health.sleep", "health.exercise"]
    */
-  sources: Array<{
-    /**
-     * Observation type to pull from, e.g., "health.sleep"
-     */
-    observationType?: string;
-
-    /**
-     * Optional artifact query
-     */
-    artifactQuery?: QuerySpec;
-  }>;
+  observationTypes: string[];
 
   /**
-   * How to map signals to an estimate
+   * How to aggregate matching observations into a single value
    */
-  transform: {
+  aggregation: AggregationMethod;
+
+  /**
+   * Optional window to limit scope of observations considered
+   */
+  window?: {
     /**
-     * rule = simple conditionals
-     * formula = mathematical expression
-     * model = ML-based (future)
+     * Only consider observations from the last N hours
      */
-    kind: 'rule' | 'formula' | 'model';
+    hours?: number;
 
     /**
-     * Transform definition - interpreter-defined structure
+     * Only consider the last N observations (applied after time filter)
      */
-    body: unknown;
+    count?: number;
   };
 
   /**
@@ -126,9 +126,10 @@ export type Variable = {
   preferredRange?: ViableRange;
 
   /**
-   * How to estimate this variable from observations
+   * How to estimate this variable from observations.
+   * Multiple compute specs allow combining different observation sources.
    */
-  proxies: ProxySpec[];
+  computeSpecs: ComputeSpec[];
 
   /**
    * Optional priors for Active Inference (future)

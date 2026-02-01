@@ -34,13 +34,24 @@ export type Effect =
   | { effect: `pack:${string}:${string}`; [key: string]: unknown };
 
 /**
- * Read-only access to canon state for policies
+ * Read-only access to canon state for policies.
+ *
+ * I/O CONSTRAINTS (Performance Invariants):
+ * - queryObservations enforces limit (max 1000, default 100)
+ * - queryObservations enforces window (default 24 hours)
+ * - Policies should request only the data they need
+ * - Large result sets indicate a policy design issue
  */
 export type CanonAccessor = {
   getArtifact(id: Id): Artifact | null;
   getEntity(id: Id): Entity | null;
   getVariable(id: Id): Variable | null;
   getActiveEpisodes(): Episode[];
+
+  /**
+   * Query observations with mandatory limits.
+   * @param filter - Must include limit (max 1000). Window defaults to 24h.
+   */
   queryObservations(filter: ObservationFilter): Observation[];
 };
 

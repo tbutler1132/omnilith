@@ -6,6 +6,7 @@ import type {
   SurfaceVisibility,
   LayoutMode,
   LayoutSection,
+  LayoutSpec,
   QuerySpec,
 } from '@omnilith/protocol';
 
@@ -22,7 +23,10 @@ export type CreateSurfaceInput = {
     artifactId?: Id;
     query?: QuerySpec;
   };
+  /** Reference to a shared layout (mutually exclusive with inlineLayout) */
   layoutId?: Id;
+  /** Inline layout definition (mutually exclusive with layoutId) */
+  inlineLayout?: LayoutSpec;
   mapPosition?: { left: string; top: string };
   category?: string;
 };
@@ -37,7 +41,10 @@ export type UpdateSurfaceInput = {
     artifactId?: Id;
     query?: QuerySpec;
   };
+  /** Reference to a shared layout (mutually exclusive with inlineLayout) */
   layoutId?: Id;
+  /** Inline layout definition (mutually exclusive with layoutId) */
+  inlineLayout?: LayoutSpec;
   mapPosition?: { left: string; top: string };
   category?: string;
 };

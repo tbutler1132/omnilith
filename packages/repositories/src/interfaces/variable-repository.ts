@@ -1,4 +1,4 @@
-import type { Id, Variable, ProxySpec, VariableKind, ViableRange } from '@omnilith/protocol';
+import type { Id, Variable, ComputeSpec, VariableKind, ViableRange } from '@omnilith/protocol';
 
 /**
  * Input for creating a new Variable
@@ -13,7 +13,7 @@ export type CreateVariableInput = {
   unit?: string;
   viableRange?: ViableRange;
   preferredRange?: ViableRange;
-  proxies?: ProxySpec[];
+  computeSpecs?: ComputeSpec[];
   prior?: unknown;
   target?: unknown;
 };
@@ -45,7 +45,7 @@ export type VariableFilter = {
  * Repository interface for Variable operations.
  *
  * Variables are what the system regulates - quantities with viable and preferred ranges.
- * Each Variable has Proxies that define how to estimate its current value from observations.
+ * Each Variable has ComputeSpecs that define how to estimate its current value from observations.
  * VariableEstimates are derived (not stored) and computed on-demand.
  */
 export interface VariableRepository {
@@ -78,22 +78,22 @@ export interface VariableRepository {
   update(id: Id, input: UpdateVariableInput): Promise<Variable | null>;
 
   /**
-   * Add a ProxySpec to a Variable
+   * Add a ComputeSpec to a Variable
    * @returns Updated Variable or null if not found
    */
-  addProxy(variableId: Id, proxy: ProxySpec): Promise<Variable | null>;
+  addComputeSpec(variableId: Id, spec: ComputeSpec): Promise<Variable | null>;
 
   /**
-   * Update a ProxySpec on a Variable
+   * Update a ComputeSpec on a Variable
    * @returns Updated Variable or null if not found
    */
-  updateProxy(variableId: Id, proxyId: Id, proxy: Partial<ProxySpec>): Promise<Variable | null>;
+  updateComputeSpec(variableId: Id, specId: Id, spec: Partial<ComputeSpec>): Promise<Variable | null>;
 
   /**
-   * Remove a ProxySpec from a Variable
+   * Remove a ComputeSpec from a Variable
    * @returns Updated Variable or null if not found
    */
-  removeProxy(variableId: Id, proxyId: Id): Promise<Variable | null>;
+  removeComputeSpec(variableId: Id, specId: Id): Promise<Variable | null>;
 
   /**
    * Get all Variables for a Node

@@ -29,6 +29,7 @@ export class PgSurfaceRepository implements SurfaceRepository {
         entryArtifactId: input.entry.artifactId,
         entryQuery: input.entry.query,
         layoutId: input.layoutId,
+        inlineLayout: input.inlineLayout,
         mapPosition: input.mapPosition,
         category: input.category,
         createdAt: now,
@@ -94,6 +95,7 @@ export class PgSurfaceRepository implements SurfaceRepository {
       updateData.entryArtifactId = input.entry.artifactId;
     if (input.entry?.query !== undefined) updateData.entryQuery = input.entry.query;
     if (input.layoutId !== undefined) updateData.layoutId = input.layoutId;
+    if (input.inlineLayout !== undefined) updateData.inlineLayout = input.inlineLayout;
     if (input.mapPosition !== undefined) updateData.mapPosition = input.mapPosition;
     if (input.category !== undefined) updateData.category = input.category;
 
@@ -217,6 +219,7 @@ export class PgSurfaceRepository implements SurfaceRepository {
         query: row.entryQuery ?? undefined,
       },
       layoutId: row.layoutId ?? undefined,
+      inlineLayout: row.inlineLayout ?? undefined,
       mapPosition: row.mapPosition ?? undefined,
       category: row.category ?? undefined,
       createdAt: row.createdAt.toISOString(),

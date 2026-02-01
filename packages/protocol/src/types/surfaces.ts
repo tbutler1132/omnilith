@@ -56,9 +56,17 @@ export type Surface = {
   };
 
   /**
-   * Optional layout configuration
+   * Optional reference to a shared layout.
+   * Mutually exclusive with inlineLayout.
    */
   layoutId?: Id;
+
+  /**
+   * Optional inline layout definition.
+   * Use this for simple, one-off layouts that don't need to be shared.
+   * Mutually exclusive with layoutId.
+   */
+  inlineLayout?: LayoutSpec;
 
   /**
    * Optional position for map display
@@ -138,6 +146,33 @@ export type LayoutSlot = {
    * Optional styling
    */
   style?: Record<string, string>;
+};
+
+/**
+ * Layout specification for inline layouts (embedded in Surface).
+ * Same structure as SurfaceLayout but without id/nodeId/timestamps.
+ */
+export type LayoutSpec = {
+  /**
+   * Layout mode
+   * v1: sections only (vertical stack)
+   * v1.5+: canvas (free positioning)
+   */
+  mode: LayoutMode;
+
+  /**
+   * For sections mode: the sections configuration
+   */
+  sections?: LayoutSection[];
+
+  /**
+   * For canvas mode: free positioning data (future)
+   */
+  canvas?: {
+    width: number;
+    height: number;
+    elements: unknown[]; // TBD in v1.5
+  };
 };
 
 /**

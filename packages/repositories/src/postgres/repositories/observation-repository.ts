@@ -7,6 +7,11 @@ import type {
 } from '../../interfaces/index.js';
 import type { Observation, ObservationFilter, Id } from '@omnilith/protocol';
 
+// Default limits for observation queries (Performance Invariants)
+const DEFAULT_LIMIT = 100;
+const MAX_LIMIT = 1000;
+const DEFAULT_WINDOW_HOURS = 24;
+
 export class PgObservationRepository implements ObservationRepository {
   constructor(private db: Database) {}
 
@@ -54,8 +59,19 @@ export class PgObservationRepository implements ObservationRepository {
       conditions.push(like(observations.type, `${filter.typePrefix}%`));
     }
 
-    if (filter.timeRange?.start) {
+    // Apply window filter (new simplified format)
+    if (filter.window?.hours) {
+      const since = new Date(Date.now() - filter.window.hours * 60 * 60 * 1000);
+      conditions.push(gte(observations.timestamp, since));
+    } else if (filter.window?.since) {
+      conditions.push(gte(observations.timestamp, new Date(filter.window.since)));
+    } else if (filter.timeRange?.start) {
+      // Legacy timeRange support
       conditions.push(gte(observations.timestamp, new Date(filter.timeRange.start)));
+    } else {
+      // Default window: last 24 hours (Performance Invariant)
+      const defaultSince = new Date(Date.now() - DEFAULT_WINDOW_HOURS * 60 * 60 * 1000);
+      conditions.push(gte(observations.timestamp, defaultSince));
     }
 
     if (filter.timeRange?.end) {
@@ -70,9 +86,9 @@ export class PgObservationRepository implements ObservationRepository {
 
     query = query.orderBy(desc(observations.timestamp)) as typeof query;
 
-    if (filter.limit) {
-      query = query.limit(filter.limit) as typeof query;
-    }
+    // Enforce limit with cap (Performance Invariant)
+    const effectiveLimit = Math.min(filter.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
+    query = query.limit(effectiveLimit) as typeof query;
 
     if (filter.offset) {
       query = query.offset(filter.offset) as typeof query;
