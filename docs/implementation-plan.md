@@ -333,7 +333,7 @@ _Build the gated action system._
 
 _Build the Active Inference foundation._
 
-### 4.1 — Variable Storage
+### 4.1 — Variable Storage ✓
 
 **What this is:** CRUD operations for Variables and their Proxy definitions.
 
@@ -343,10 +343,10 @@ _Build the Active Inference foundation._
 
 **Sub-tasks:**
 
-- [ ] Implement variable creation with viable/preferred ranges
-- [ ] Implement proxy attachment (link proxy specs to variables)
-- [ ] Implement variable queries (by node, by key)
-- [ ] Write tests for variable lifecycle
+- [x] Implement variable creation with viable/preferred ranges
+- [x] Implement proxy attachment (link proxy specs to variables)
+- [x] Implement variable queries (by node, by key)
+- [x] Write tests for variable lifecycle
 
 **Plain English:** A Variable is something you care about tracking — like "sleep quality" or "creative output." Each variable has ranges that define what's good (preferred) and what's acceptable (viable). You create variables and attach rules for how to estimate them.
 
