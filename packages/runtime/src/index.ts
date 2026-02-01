@@ -131,3 +131,21 @@ export {
   hasEffectHandler,
   getRegisteredEffectTypes,
 } from './effects/index.js';
+
+// Variable estimation (Phase 4.2)
+export {
+  // ComputeSpec evaluation
+  evaluateComputeSpec,
+  evaluateComputeSpecs,
+  // Helper functions
+  matchesObservationType,
+  filterByObservationTypes,
+  filterByTimeWindow,
+  applyCountLimit,
+  extractNumericValue,
+  aggregate,
+  // Types
+  type ComputeResult,
+  // Errors
+  ComputeSpecError,
+} from './variables/index.js';

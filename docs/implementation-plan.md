@@ -352,9 +352,9 @@ _Build the Active Inference foundation._
 
 ---
 
-### 4.2 — Proxy Evaluation
+### 4.2 — Proxy Evaluation ✓
 
-**What this is:** Derive Variable estimates from observations using Proxy specs.
+**What this is:** Derive Variable estimates from observations using ComputeSpecs.
 
 **Why it matters:** Estimates are how the system "perceives" current state.
 
@@ -362,14 +362,18 @@ _Build the Active Inference foundation._
 
 **Sub-tasks:**
 
-- [ ] Implement `evaluateProxy(proxy: ProxySpec, observations: Observation[]): number | string | boolean`
-- [ ] Support `rule` transform (simple conditionals)
-- [ ] Support `formula` transform (mathematical expressions)
-- [ ] Stub `model` transform (for future ML-based estimation)
-- [ ] Handle confidence scoring
-- [ ] Write tests for each transform type
+- [x] Implement `evaluateComputeSpec(spec: ComputeSpec, observations: Observation[]): ComputeResult`
+- [x] Support all aggregation methods: latest, sum, avg, count, min, max
+- [x] Support time window filtering (hours)
+- [x] Support count limiting (after time filter, per spec)
+- [x] Support observation type matching (exact and wildcard prefix)
+- [x] Handle confidence scoring (spec confidence + coverage adjustments)
+- [x] Implement `evaluateComputeSpecs` for multiple specs (returns highest confidence)
+- [x] Write comprehensive tests (65 tests covering all aggregation types, filtering, edge cases)
 
-**Plain English:** A Proxy is a recipe for turning raw observations into an estimate. For example: "look at all sleep observations from the past week, average the hours, that's the sleep quality estimate." The proxy evaluator runs these recipes.
+**Note:** The spec (§8.1.2) simplified the original ProxySpec design to use ComputeSpec with standard aggregation patterns. The implementation follows the spec rather than the original rule/formula/model transform approach.
+
+**Plain English:** A ComputeSpec is a recipe for turning raw observations into a value. For example: "look at all health.sleep observations from the past 24 hours, average the hours field." The compute evaluator runs these recipes and returns the computed value with confidence.
 
 ---
 
