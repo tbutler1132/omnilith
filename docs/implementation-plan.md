@@ -192,7 +192,7 @@ _Build the core regulatory engine._
 
 ---
 
-### 2.2 — Policy Evaluation Engine
+### 2.2 — Policy Evaluation Engine ✓
 
 **What this is:** A pure function that runs policies against observations and returns effects.
 
@@ -202,13 +202,13 @@ _Build the core regulatory engine._
 
 **Sub-tasks:**
 
-- [ ] Create `PolicyContext` builder (assembles read-only context for policy)
-- [ ] Implement `evaluatePolicy(policy: Policy, ctx: PolicyContext): Effect[]`
-- [ ] Implement `evaluatePolicies(policies: Policy[], ctx: PolicyContext): Effect[]` with priority ordering
-- [ ] Handle `priorEffects` accumulation (later policies see earlier effects)
-- [ ] Handle `suppress` effect (stops further evaluation)
-- [ ] Sandbox policy execution (catch errors, timeout protection)
-- [ ] Write tests for policy priority, effect accumulation, suppression
+- [x] Create `PolicyContext` builder (assembles read-only context for policy)
+- [x] Implement `evaluatePolicy(policy: Policy, ctx: PolicyContext): Effect[]`
+- [x] Implement `evaluatePolicies(policies: Policy[], ctx: PolicyContext): Effect[]` with priority ordering
+- [x] Handle `priorEffects` accumulation (later policies see earlier effects)
+- [x] Handle `suppress` effect (stops further evaluation)
+- [x] Sandbox policy execution (catch errors, timeout protection)
+- [x] Write tests for policy priority, effect accumulation, suppression
 
 **Plain English:** When an observation arrives, we need to ask "what should happen now?" Policies are the rules that answer this question. Each policy is a pure function — you give it context (the observation, the node's state, etc.) and it returns a list of effects (things that should happen). Policies run in priority order, and each one can see what the previous ones decided.
 

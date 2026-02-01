@@ -24,5 +24,12 @@ export default tseslint.config(
       // Allow explicit any in some cases (we use unknown mostly)
       '@typescript-eslint/no-explicit-any': 'warn',
     },
+  },
+  // Relaxed rules for test files
+  {
+    files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
   }
 );

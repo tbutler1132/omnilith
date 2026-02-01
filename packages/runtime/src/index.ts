@@ -8,6 +8,10 @@ export {
   ProvenanceError,
   NodeNotFoundError,
   InvalidObservationTypeError,
+  PolicyCompilationError,
+  PolicyExecutionError,
+  PolicyTimeoutError,
+  InvalidEffectError,
 } from './errors.js';
 
 // Ingestion
@@ -18,3 +22,25 @@ export {
   type IngestObservationResult,
   type IngestObservationOptions,
 } from './ingestion/index.js';
+
+// Policy evaluation
+export {
+  // Context building
+  buildPolicyContext,
+  createCanonAccessor,
+  createEstimatesAccessor,
+  type BuildPolicyContextOptions,
+  // Compilation
+  compilePolicy,
+  getCompiledPolicy,
+  clearCompiledPolicyCache,
+  // Evaluation
+  evaluatePolicy,
+  evaluatePolicies,
+  evaluatePoliciesForObservation,
+  matchesTrigger,
+  filterPoliciesByTrigger,
+  type EvaluatePolicyOptions,
+  type PolicyEvaluationResult,
+  type PoliciesEvaluationResult,
+} from './policies/index.js';
