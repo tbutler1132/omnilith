@@ -12,3 +12,4 @@
 
 export * from './interfaces/index.js';
 export * as postgres from './postgres/index.js';
+export * as bundle from './bundle/index.js';
