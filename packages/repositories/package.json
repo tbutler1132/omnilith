@@ -14,7 +14,8 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
-    "test": "echo 'No tests yet'"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@omnilith/protocol": "workspace:*",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "drizzle-kit": "^0.30.0",
-    "typescript": "^5.7"
+    "typescript": "^5.7",
+    "vitest": "^3.0.0"
   }
 }

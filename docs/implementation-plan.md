@@ -148,7 +148,7 @@ _Build the data access layer so we can swap storage backends later._
 
 ---
 
-### 1.3 — Bundle Import/Export
+### 1.3 — Bundle Import/Export ✓
 
 **What this is:** Functions to export the entire database to a Omnilith Bundle folder, and import from one.
 
@@ -158,10 +158,10 @@ _Build the data access layer so we can swap storage backends later._
 
 **Sub-tasks:**
 
-- [ ] Implement `exportBundle(repos: RepositoryContext, outputPath: string)`
-- [ ] Implement `importBundle(repos: RepositoryContext, bundlePath: string)`
-- [ ] Handle NDJSON streaming for large observation logs
-- [ ] Write tests: export → wipe DB → import → verify identical state
+- [x] Implement `exportBundle(repos: RepositoryContext, outputPath: string)`
+- [x] Implement `importBundle(repos: RepositoryContext, bundlePath: string)`
+- [x] Handle NDJSON streaming for large observation logs
+- [x] Write tests: export → wipe DB → import → verify identical state
 
 **Plain English:** This is the "save" and "load" feature for the entire system. If it works, you've proven that nothing is trapped in Postgres — you could take the bundle and load it into a completely different implementation.
 
