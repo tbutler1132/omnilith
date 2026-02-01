@@ -240,7 +240,7 @@ _Build the core regulatory engine._
 
 ---
 
-### 2.4 — The Runtime Loop
+### 2.4 — The Runtime Loop ✓
 
 **What this is:** Ties ingestion → evaluation → execution into a single flow.
 
@@ -250,13 +250,13 @@ _Build the core regulatory engine._
 
 **Sub-tasks:**
 
-- [ ] Create `processObservation(obs: Observation)` that orchestrates the full loop
-- [ ] Load relevant policies for the observation's node
-- [ ] Build policy context
-- [ ] Evaluate policies
-- [ ] Execute effects
-- [ ] Return summary of what happened (for logging/debugging)
-- [ ] Write integration tests for end-to-end observation processing
+- [x] Create `processObservation(obs: Observation)` that orchestrates the full loop
+- [x] Load relevant policies for the observation's node
+- [x] Build policy context
+- [x] Evaluate policies
+- [x] Execute effects
+- [x] Return summary of what happened (for logging/debugging)
+- [x] Write integration tests for end-to-end observation processing
 
 **Plain English:** This is the main loop: observation comes in → policies evaluate it → effects execute. One function that does the whole thing. Call it whenever a new observation arrives.
 

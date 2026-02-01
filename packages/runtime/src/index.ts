@@ -1,6 +1,16 @@
 // @omnilith/runtime
 // Policy evaluation and effect execution
 
+// Runtime loop (the heartbeat - observation → policies → effects)
+export {
+  processObservation,
+  processObservations,
+  isProcessingError,
+  type ProcessObservationOptions,
+  type ProcessObservationResult,
+  type PolicyExecutionSummary,
+} from './loop.js';
+
 // Error types
 export {
   RuntimeError,
