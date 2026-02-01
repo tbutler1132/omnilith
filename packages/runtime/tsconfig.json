@@ -7,6 +7,7 @@
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"],
   "references": [
-    { "path": "../protocol" }
+    { "path": "../protocol" },
+    { "path": "../repositories" }
   ]
 }

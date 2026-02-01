@@ -14,12 +14,15 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
-    "test": "echo 'No tests yet'"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "@omnilith/protocol": "workspace:*"
+    "@omnilith/protocol": "workspace:*",
+    "@omnilith/repositories": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.7"
+    "typescript": "^5.7",
+    "vitest": "^3.0.0"
   }
 }

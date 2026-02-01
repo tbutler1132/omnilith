@@ -171,7 +171,7 @@ _Build the data access layer so we can swap storage backends later._
 
 _Build the core regulatory engine._
 
-### 2.1 — Observation Ingestion
+### 2.1 — Observation Ingestion ✓
 
 **What this is:** The entry point for all signals into the system.
 
@@ -181,12 +181,12 @@ _Build the core regulatory engine._
 
 **Sub-tasks:**
 
-- [ ] Create `ingestObservation(obs: Observation)` function
-- [ ] Validate observation shape and required fields
-- [ ] Enforce provenance requirements (origin, sourceId)
-- [ ] Append to observation log via repository
-- [ ] Return observation ID for downstream use
-- [ ] Write tests for valid/invalid observations
+- [x] Create `ingestObservation(obs: Observation)` function
+- [x] Validate observation shape and required fields
+- [x] Enforce provenance requirements (origin, sourceId)
+- [x] Append to observation log via repository
+- [x] Return observation ID for downstream use
+- [x] Write tests for valid/invalid observations
 
 **Plain English:** When something happens (user logs sleep, sensor reports data, agent notices something), it becomes an Observation. This function is the front door — it validates the observation and saves it to the log.
 
