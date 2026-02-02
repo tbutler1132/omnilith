@@ -460,11 +460,11 @@ _Build the intervention coordination system._
 
 ---
 
-## Phase 6: Entities (Durable Referents)
+## Phase 6: Entities (Durable Referents) ✓
 
 _Build the semantic identity layer._
 
-### 6.1 — Entity Storage and Events
+### 6.1 — Entity Storage and Events ✓
 
 **What this is:** Event-sourced entities with stable identity.
 
@@ -474,18 +474,18 @@ _Build the semantic identity layer._
 
 **Sub-tasks:**
 
-- [ ] Implement entity type definitions (schema for each entity kind)
-- [ ] Implement entity creation
-- [ ] Implement `appendEntityEvent(entityId, event)` (event-sourced mutation)
-- [ ] Implement entity state materialization (replay events to get current state)
-- [ ] Implement entity queries (by type, by node)
-- [ ] Write tests for entity lifecycle and event replay
+- [x] Implement entity type definitions (schema for each entity kind)
+- [x] Implement entity creation
+- [x] Implement `appendEntityEvent(entityId, event)` (event-sourced mutation)
+- [x] Implement entity state materialization (replay events to get current state)
+- [x] Implement entity queries (by type, by node)
+- [x] Write tests for entity lifecycle and event replay (51 tests)
 
 **Plain English:** An Entity is a thing with an identity that persists — like a "song" or a "project." Instead of directly editing the entity, you append events: "title changed," "status updated." The current state is computed by replaying all events. This gives you full history and auditability.
 
 ---
 
-### 6.2 — Entity References in Artifacts
+### 6.2 — Entity References in Artifacts ✓
 
 **What this is:** Link artifacts to entities by ID.
 
@@ -495,9 +495,9 @@ _Build the semantic identity layer._
 
 **Sub-tasks:**
 
-- [ ] Add `entityRefs: string[]` field to Artifact type
-- [ ] Implement entity reference resolution (artifact → entity lookup)
-- [ ] Write tests for artifact-entity relationships
+- [x] Add `entityRefs: string[]` field to Artifact type
+- [x] Implement entity reference resolution (artifact → entity lookup via `getByEntityRef`)
+- [x] Write tests for artifact-entity relationships (21 tests)
 
 **Plain English:** An artifact (like a document) can say "this is about Song X" by referencing the song entity's ID. Now any artifact about that song can be found, and the song's identity is stable even if documents change.
 
