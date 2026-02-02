@@ -9,7 +9,6 @@ import {
   PackAlreadyLoadedError,
   PackDependencyError,
   PackCircularDependencyError,
-  type PackRegistrationContext,
 } from './registry.js';
 import { effectRegistry } from '../effects/index.js';
 import { createActionRegistry } from '../actions/index.js';

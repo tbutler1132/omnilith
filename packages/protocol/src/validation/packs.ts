@@ -3,20 +3,7 @@
 // Validates pack manifests and contents.
 // Ensures packs are well-formed before loading.
 
-import type {
-  Pack,
-  PackManifest,
-  PackContents,
-  PackDependency,
-  PackSensorDefinition,
-  PackPolicyDefinition,
-  PackActionDefinition,
-  PackEffectDefinition,
-  PackEntityTypeDefinition,
-  PackBlockDefinition,
-  PackVariableTemplate,
-  SemVer,
-} from '../types/packs.js';
+import type { PackManifest } from '../types/packs.js';
 import {
   isValidPackName,
   isValidSemVer,
@@ -157,7 +144,7 @@ export function validatePack(
  */
 export function validatePackManifest(
   manifest: unknown,
-  options: ValidatePackOptions = {}
+  _options: ValidatePackOptions = {}
 ): PackValidationResult {
   const errors: PackValidationError[] = [];
   const warnings: PackValidationWarning[] = [];
@@ -1100,10 +1087,10 @@ function validateBlockDefinition(
  */
 function validateVariableTemplate(
   template: unknown,
-  packName: string,
+  _packName: string,
   path: string,
   definedIds: Set<string>,
-  options: ValidatePackOptions
+  _options: ValidatePackOptions
 ): PackValidationResult {
   const errors: PackValidationError[] = [];
   const warnings: PackValidationWarning[] = [];

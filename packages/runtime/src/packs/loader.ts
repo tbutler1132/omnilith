@@ -11,8 +11,6 @@ import {
   packRegistry,
   resolveLoadOrder,
   type PackRegistrationContext,
-  PackNotFoundError,
-  PackDependencyError,
   PackCircularDependencyError,
 } from './registry.js';
 

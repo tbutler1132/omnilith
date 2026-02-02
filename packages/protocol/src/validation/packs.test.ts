@@ -6,7 +6,6 @@ import {
   validatePack,
   validatePackManifest,
   validatePackContents,
-  type PackValidationResult,
 } from './packs.js';
 
 // --- Test Fixtures ---

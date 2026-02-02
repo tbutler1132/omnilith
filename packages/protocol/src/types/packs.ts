@@ -10,7 +10,7 @@
 // - Entity types: pack.packname.typename (e.g., "pack.finance.transaction")
 // - Block types: packname/blocktype (e.g., "finance/chart")
 
-import type { Id, Timestamp } from './common.js';
+import type { Timestamp } from './common.js';
 import type { RiskLevel } from './nodes.js';
 
 /**
