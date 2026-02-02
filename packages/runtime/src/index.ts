@@ -206,3 +206,43 @@ export {
   PrismAuthorizationError,
   PrismOperationError,
 } from './prism/index.js';
+
+// Packs - Extension System (Phase 11)
+export {
+  // Registry
+  packRegistry,
+  resolveLoadOrder,
+  packActionType,
+  // Loader
+  loadPack,
+  loadPacks,
+  unloadPack,
+  findDependents,
+  canLoadPack,
+  getAvailablePacks,
+  getLoadedPacks,
+  createPack,
+  createEmptyPack,
+  // Errors
+  PackNotFoundError,
+  PackAlreadyLoadedError,
+  PackDependencyError,
+  PackVersionError,
+  PackCircularDependencyError,
+  PackLoadError,
+  PackDiscoveryError,
+  // Types
+  type PackRegistrationContext,
+  type PackExtensionHandlers,
+  type EntityTypeRegistrationHandler,
+  type BlockTypeRegistrationHandler,
+  type SensorRegistrationHandler,
+  type PolicyTemplateRegistrationHandler,
+  type VariableTemplateRegistrationHandler,
+  type MutableActionRegistry,
+  type PackLoadResult,
+  type BatchLoadResult,
+  type LoadPackOptions,
+  type BatchLoadOptions,
+  type PackSource,
+} from './packs/index.js';
