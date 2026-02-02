@@ -616,11 +616,11 @@ _Build the content authoring layer._
 
 ---
 
-## Phase 9: Surfaces and Layouts
+## Phase 9: Surfaces and Layouts ✓
 
 _Build the projection layer._
 
-### 9.1 — Surface Storage
+### 9.1 — Surface Storage ✓
 
 **What this is:** CRUD for surface configurations.
 
@@ -630,17 +630,17 @@ _Build the projection layer._
 
 **Sub-tasks:**
 
-- [ ] Implement surface creation
-- [ ] Implement surface retrieval (by ID, by node, by visibility)
-- [ ] Implement surface update
-- [ ] Enforce Projection Law at storage level (surfaces reference artifacts, never embed content)
-- [ ] Write tests for surface lifecycle
+- [x] Implement surface creation
+- [x] Implement surface retrieval (by ID, by node, by visibility)
+- [x] Implement surface update
+- [x] Enforce Projection Law at storage level (surfaces reference artifacts, never embed content)
+- [x] Write tests for surface lifecycle (71 tests)
 
 **Plain English:** A Surface is a view configuration — "show this artifact as a page" or "show all artifacts tagged 'journal' as a timeline." The surface says _what_ to show and _how_, but the content comes from elsewhere (artifacts, entities, etc.).
 
 ---
 
-### 9.2 — Layout System
+### 9.2 — Layout System ✓
 
 **What this is:** Layout configurations for surfaces.
 
@@ -650,11 +650,11 @@ _Build the projection layer._
 
 **Sub-tasks:**
 
-- [ ] Implement `sections` mode layouts (header, body, repeater, footer)
-- [ ] Define layout schema (positions, slots, styles)
-- [ ] Implement layout storage and retrieval
-- [ ] Stub `canvas` mode for future (free positioning)
-- [ ] Write tests for layout application
+- [x] Implement `sections` mode layouts (header, body, repeater, footer)
+- [x] Define layout schema (positions, slots, styles)
+- [x] Implement layout storage and retrieval
+- [x] Stub `canvas` mode for future (free positioning)
+- [x] Write tests for layout application (71 tests total for Phase 9)
 
 **Plain English:** A Layout controls how content is arranged on screen — where the title goes, how items are spaced, etc. For v1, we support "sections" (vertical stacking). Canvas mode (free positioning) comes later.
 
