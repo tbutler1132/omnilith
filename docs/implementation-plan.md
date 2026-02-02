@@ -775,11 +775,11 @@ _Build the plugin architecture._
 
 ---
 
-## Phase 12: Replay and Determinism
+## Phase 12: Replay and Determinism ✓
 
 _Prove the system is reconstructable._
 
-### 12.1 — Log Replay
+### 12.1 — Log Replay ✓
 
 **What this is:** Rebuild derived state by replaying event logs.
 
@@ -789,16 +789,26 @@ _Prove the system is reconstructable._
 
 **Sub-tasks:**
 
-- [ ] Implement `replayObservationLog(observations: Observation[])` (re-evaluate policies, re-derive effects)
-- [ ] Implement `replayEntityEvents(entityId, events: EntityEvent[])` (rebuild entity state)
-- [ ] Handle ActionRun replay (don't re-execute, just use recorded results)
-- [ ] Write tests: replay from bundle should produce identical derived state
+- [x] Implement `replayObservationLog(observations: Observation[])` (re-evaluate policies, re-derive effects)
+- [x] Implement `replayEntityEvents(entityId, events: EntityEvent[])` (rebuild entity state)
+- [x] Handle ActionRun replay (don't re-execute, just use recorded results)
+- [x] Write tests: replay from bundle should produce identical derived state (61 tests)
 
 **Plain English:** If you export everything to a bundle and then replay the logs in a fresh system, you should get the exact same state. This test proves nothing is hidden or lost.
 
+**Implementation Notes:**
+- `replayObservation()` and `replayObservationLog()` in `@omnilith/runtime` for observation replay
+- Three replay modes: `evaluate_only`, `execute_internal`, `full`
+- Historical ActionRuns are used via `historicalActionRuns` map — not re-executed (per spec §0.5)
+- `groupActionRunsByObservation()` utility for building the ActionRun lookup map
+- Fixed timestamp support via `evaluatedAt` option for deterministic replay
+- `replayEntityEvents()` with `defaultEventReducer` for entity state reconstruction
+- `materializeEntityState()` to compute state from repository
+- `verifyEntityState()` and `verifyEntities()` for state verification
+
 ---
 
-### 12.2 — Determinism Tests
+### 12.2 — Determinism Tests ✓
 
 **What this is:** Verify policies produce identical results given identical inputs.
 
@@ -808,12 +818,21 @@ _Prove the system is reconstructable._
 
 **Sub-tasks:**
 
-- [ ] Create determinism test harness
-- [ ] Run same observation through same policy multiple times, verify identical effects
-- [ ] Flag policies that use non-deterministic operations (random, current time, etc.)
-- [ ] Write tests for determinism invariants
+- [x] Create determinism test harness
+- [x] Run same observation through same policy multiple times, verify identical effects
+- [x] Flag policies that use non-deterministic operations (random, current time, etc.)
+- [x] Write tests for determinism invariants (24 tests)
 
 **Plain English:** Policies must be predictable — same input, same output, every time. These tests catch policies that accidentally break this rule.
+
+**Implementation Notes:**
+- `checkPolicyDeterminism()` evaluates policy N times with fixed input, compares effects
+- `detectNonDeterministicPatterns()` scans policy code for problematic patterns:
+  - Error-level: `Date.now()`, `new Date()`, `Math.random()`, `crypto.randomUUID()`, `fetch()`, `setTimeout/setInterval`
+  - Warning-level: `console.log`, `process.env`
+- Pattern detection reports line numbers and matched code snippets
+- `checkPoliciesDeterminism()` for batch checking multiple policies
+- `createTestObservation()` helper for creating deterministic test inputs
 
 ---
 

@@ -246,3 +246,33 @@ export {
   type BatchLoadOptions,
   type PackSource,
 } from './packs/index.js';
+
+// Replay and Determinism (Phase 12)
+export {
+  // Observation log replay
+  replayObservationLog,
+  replayObservation,
+  groupActionRunsByObservation,
+  isReplayError,
+  type ReplayObservationOptions,
+  type ReplayObservationResult,
+  type ReplayLogOptions,
+  type ReplayLogResult,
+  type ReplayMode,
+  // Entity event replay
+  replayEntityEvents,
+  materializeEntityState,
+  verifyEntityState,
+  verifyEntities,
+  defaultEventReducer,
+  type ReplayEntityEventsOptions,
+  type ReplayEntityEventsResult,
+  // Determinism utilities
+  checkPolicyDeterminism,
+  checkPoliciesDeterminism,
+  detectNonDeterministicPatterns,
+  createTestObservation,
+  type DeterminismCheckOptions,
+  type DeterminismCheckResult,
+  type NonDeterministicPattern,
+} from './replay/index.js';
