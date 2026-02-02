@@ -418,11 +418,11 @@ _Build the Active Inference foundation._
 
 ---
 
-## Phase 5: Episodes (Structured Interventions)
+## Phase 5: Episodes (Structured Interventions) ✓
 
 _Build the intervention coordination system._
 
-### 5.1 — Episode Lifecycle
+### 5.1 — Episode Lifecycle ✓
 
 **What this is:** CRUD and state transitions for Episodes.
 
@@ -432,17 +432,17 @@ _Build the intervention coordination system._
 
 **Sub-tasks:**
 
-- [ ] Implement episode creation with variable/intent bindings
-- [ ] Implement status transitions (planned → active → completed/abandoned)
-- [ ] Implement episode queries (active by node, by variable)
-- [ ] Enforce: episodes mutated only through Prism (API-level guard)
-- [ ] Write tests for episode lifecycle
+- [x] Implement episode creation with variable/intent bindings
+- [x] Implement status transitions (planned → active → completed/abandoned)
+- [x] Implement episode queries (active by node, by variable)
+- [ ] Enforce: episodes mutated only through Prism (API-level guard) _(deferred to Phase 10: Prism)_
+- [x] Write tests for episode lifecycle
 
 **Plain English:** An Episode is a focused effort: "For the next week, I'm going to stabilize my sleep." It has a start, an end, and a goal (the intent). Episodes can be regulatory (fixing a problem) or exploratory (trying something new).
 
 ---
 
-### 5.2 — Wire Episodes into Policy Context
+### 5.2 — Wire Episodes into Policy Context ✓
 
 **What this is:** Make active episodes visible to policies.
 
@@ -452,9 +452,9 @@ _Build the intervention coordination system._
 
 **Sub-tasks:**
 
-- [ ] Add `getActiveEpisodes()` to policy context
-- [ ] Add episode-aware policy examples
-- [ ] Write tests for policies that check active episodes
+- [x] Add `getActiveEpisodes()` to policy context
+- [x] Add episode-aware policy examples
+- [x] Write tests for policies that check active episodes
 
 **Plain English:** Policies can now ask "is there an active episode targeting sleep quality?" and adjust their recommendations accordingly — maybe being more aggressive about reminders, or relaxing other constraints.
 

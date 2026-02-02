@@ -943,3 +943,397 @@ describe('CanonAccessor', () => {
     expect(queryArg.window).toBeUndefined();
   });
 });
+
+// --- Episode-Aware Policy Tests (Phase 5.2) ---
+
+import type { Episode } from '@omnilith/protocol';
+
+function createMockEpisode(overrides: Partial<Episode> = {}): Episode {
+  return {
+    id: 'episode-1',
+    nodeId: 'node-1',
+    title: 'Test Episode',
+    kind: 'regulatory',
+    variables: [{ variableId: 'var-1', intent: 'stabilize' }],
+    status: 'active',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    ...overrides,
+  };
+}
+
+describe('Episode-Aware Policies (Phase 5.2)', () => {
+  beforeEach(() => {
+    clearCompiledPolicyCache();
+  });
+
+  it('policy can access active episodes via canon.getActiveEpisodes()', async () => {
+    const repos = createMockRepos();
+    // Mock active episodes
+    (repos.episodes.getActive as any).mockResolvedValue([
+      createMockEpisode({ id: 'ep-1', title: 'Sleep Regulation' }),
+      createMockEpisode({ id: 'ep-2', title: 'Exercise Focus' }),
+    ]);
+
+    const policy = createMockPolicy({
+      implementation: {
+        kind: 'typescript',
+        code: `
+          const episodes = ctx.canon.getActiveEpisodes();
+          return [{ effect: 'log', level: 'info', message: 'Active episodes: ' + episodes.length }];
+        `,
+      },
+    });
+    const observation = createMockObservation();
+
+    const result = await evaluatePolicy(repos, policy, observation);
+
+    expect(result.effects[0]).toEqual({
+      effect: 'log',
+      level: 'info',
+      message: 'Active episodes: 2',
+    });
+  });
+
+  it('policy can filter episodes by kind', async () => {
+    const repos = createMockRepos();
+    (repos.episodes.getActive as any).mockResolvedValue([
+      createMockEpisode({ id: 'ep-1', kind: 'regulatory', title: 'Regulatory' }),
+      createMockEpisode({ id: 'ep-2', kind: 'exploratory', title: 'Exploratory' }),
+      createMockEpisode({ id: 'ep-3', kind: 'regulatory', title: 'Another Regulatory' }),
+    ]);
+
+    const policy = createMockPolicy({
+      implementation: {
+        kind: 'typescript',
+        code: `
+          const episodes = ctx.canon.getActiveEpisodes();
+          const regulatory = episodes.filter(ep => ep.kind === 'regulatory');
+          return [{ effect: 'log', level: 'info', message: 'Regulatory: ' + regulatory.length }];
+        `,
+      },
+    });
+    const observation = createMockObservation();
+
+    const result = await evaluatePolicy(repos, policy, observation);
+
+    expect(result.effects[0]).toEqual({
+      effect: 'log',
+      level: 'info',
+      message: 'Regulatory: 2',
+    });
+  });
+
+  it('policy can check if a specific variable has an active episode', async () => {
+    const repos = createMockRepos();
+    (repos.episodes.getActive as any).mockResolvedValue([
+      createMockEpisode({
+        id: 'ep-1',
+        variables: [
+          { variableId: 'var-sleep', intent: 'stabilize' },
+          { variableId: 'var-energy', intent: 'increase' },
+        ],
+      }),
+    ]);
+
+    const policy = createMockPolicy({
+      implementation: {
+        kind: 'typescript',
+        code: `
+          const episodes = ctx.canon.getActiveEpisodes();
+          const hasSleepEpisode = episodes.some(ep =>
+            ep.variables.some(v => v.variableId === 'var-sleep')
+          );
+          const hasExerciseEpisode = episodes.some(ep =>
+            ep.variables.some(v => v.variableId === 'var-exercise')
+          );
+          return [
+            { effect: 'log', level: 'info', message: 'Sleep episode: ' + hasSleepEpisode },
+            { effect: 'log', level: 'info', message: 'Exercise episode: ' + hasExerciseEpisode },
+          ];
+        `,
+      },
+    });
+    const observation = createMockObservation();
+
+    const result = await evaluatePolicy(repos, policy, observation);
+
+    expect(result.effects[0]).toEqual({
+      effect: 'log',
+      level: 'info',
+      message: 'Sleep episode: true',
+    });
+    expect(result.effects[1]).toEqual({
+      effect: 'log',
+      level: 'info',
+      message: 'Exercise episode: false',
+    });
+  });
+
+  it('policy behaves differently during active regulatory episode', async () => {
+    const repos = createMockRepos();
+    (repos.episodes.getActive as any).mockResolvedValue([
+      createMockEpisode({
+        id: 'ep-1',
+        kind: 'regulatory',
+        variables: [{ variableId: 'var-sleep', intent: 'stabilize' }],
+      }),
+    ]);
+
+    const policy = createMockPolicy({
+      triggers: ['health.sleep'],
+      implementation: {
+        kind: 'typescript',
+        code: `
+          const episodes = ctx.canon.getActiveEpisodes();
+          const sleepEpisode = episodes.find(ep =>
+            ep.kind === 'regulatory' &&
+            ep.variables.some(v => v.variableId === 'var-sleep')
+          );
+
+          if (sleepEpisode) {
+            // During active episode, be more aggressive
+            return [
+              { effect: 'log', level: 'info', message: 'PRIORITY: Sleep observation during active episode' },
+              { effect: 'propose_action', action: { name: 'send_reminder', params: { urgency: 'high' } } },
+            ];
+          }
+
+          // Normal behavior
+          return [{ effect: 'log', level: 'info', message: 'Standard sleep observation' }];
+        `,
+      },
+    });
+    const observation = createMockObservation({ type: 'health.sleep' });
+
+    const result = await evaluatePolicy(repos, policy, observation);
+
+    expect(result.effects).toHaveLength(2);
+    expect(result.effects[0]).toEqual({
+      effect: 'log',
+      level: 'info',
+      message: 'PRIORITY: Sleep observation during active episode',
+    });
+    expect(result.effects[1].effect).toBe('propose_action');
+  });
+
+  it('policy can check episode intent', async () => {
+    const repos = createMockRepos();
+    (repos.episodes.getActive as any).mockResolvedValue([
+      createMockEpisode({
+        id: 'ep-1',
+        variables: [{ variableId: 'var-sleep', intent: 'increase' }],
+      }),
+    ]);
+
+    const policy = createMockPolicy({
+      implementation: {
+        kind: 'typescript',
+        code: `
+          const episodes = ctx.canon.getActiveEpisodes();
+          const sleepIntent = episodes
+            .flatMap(ep => ep.variables)
+            .find(v => v.variableId === 'var-sleep')?.intent;
+
+          return [{ effect: 'log', level: 'info', message: 'Sleep intent: ' + sleepIntent }];
+        `,
+      },
+    });
+    const observation = createMockObservation();
+
+    const result = await evaluatePolicy(repos, policy, observation);
+
+    expect(result.effects[0]).toEqual({
+      effect: 'log',
+      level: 'info',
+      message: 'Sleep intent: increase',
+    });
+  });
+
+  it('policy handles no active episodes gracefully', async () => {
+    const repos = createMockRepos();
+    (repos.episodes.getActive as any).mockResolvedValue([]);
+
+    const policy = createMockPolicy({
+      implementation: {
+        kind: 'typescript',
+        code: `
+          const episodes = ctx.canon.getActiveEpisodes();
+          if (episodes.length === 0) {
+            return [{ effect: 'log', level: 'debug', message: 'No active episodes' }];
+          }
+          return [{ effect: 'log', level: 'info', message: 'Has episodes' }];
+        `,
+      },
+    });
+    const observation = createMockObservation();
+
+    const result = await evaluatePolicy(repos, policy, observation);
+
+    expect(result.effects[0]).toEqual({
+      effect: 'log',
+      level: 'debug',
+      message: 'No active episodes',
+    });
+  });
+
+  it('policy can suppress effects during exploratory episode', async () => {
+    const repos = createMockRepos();
+    (repos.episodes.getActive as any).mockResolvedValue([
+      createMockEpisode({
+        id: 'ep-1',
+        kind: 'exploratory',
+        variables: [{ variableId: 'var-sleep', intent: 'probe' }],
+      }),
+    ]);
+
+    const policy = createMockPolicy({
+      triggers: ['health.sleep'],
+      implementation: {
+        kind: 'typescript',
+        code: `
+          const episodes = ctx.canon.getActiveEpisodes();
+          const exploratoryEpisode = episodes.find(ep => ep.kind === 'exploratory');
+
+          if (exploratoryEpisode) {
+            // During exploration, relax normal constraints
+            return [{ effect: 'suppress', reason: 'Exploratory episode active - relaxing sleep constraints' }];
+          }
+
+          return [{ effect: 'log', level: 'warn', message: 'Sleep outside range' }];
+        `,
+      },
+    });
+    const observation = createMockObservation({ type: 'health.sleep' });
+
+    const result = await evaluatePolicy(repos, policy, observation);
+
+    expect(result.suppressed).toBe(true);
+    expect(result.suppressReason).toBe('Exploratory episode active - relaxing sleep constraints');
+  });
+
+  it('policy can read episode temporal scope', async () => {
+    const repos = createMockRepos();
+    (repos.episodes.getActive as any).mockResolvedValue([
+      createMockEpisode({
+        id: 'ep-1',
+        title: 'Week-long Sprint',
+        startsAt: '2024-01-15T00:00:00Z',
+        endsAt: '2024-01-22T00:00:00Z',
+      }),
+    ]);
+
+    const policy = createMockPolicy({
+      implementation: {
+        kind: 'typescript',
+        code: `
+          const episodes = ctx.canon.getActiveEpisodes();
+          const ep = episodes[0];
+          const hasEndDate = !!ep.endsAt;
+          return [{ effect: 'log', level: 'info', message: 'Episode has end date: ' + hasEndDate }];
+        `,
+      },
+    });
+    const observation = createMockObservation();
+
+    const result = await evaluatePolicy(repos, policy, observation);
+
+    expect(result.effects[0]).toEqual({
+      effect: 'log',
+      level: 'info',
+      message: 'Episode has end date: true',
+    });
+  });
+
+  it('policy can check episode related artifacts', async () => {
+    const repos = createMockRepos();
+    (repos.episodes.getActive as any).mockResolvedValue([
+      createMockEpisode({
+        id: 'ep-1',
+        relatedArtifactIds: ['artifact-plan', 'artifact-journal'],
+      }),
+    ]);
+
+    const policy = createMockPolicy({
+      implementation: {
+        kind: 'typescript',
+        code: `
+          const episodes = ctx.canon.getActiveEpisodes();
+          const artifacts = episodes[0].relatedArtifactIds || [];
+          return [{ effect: 'log', level: 'info', message: 'Related artifacts: ' + artifacts.join(',') }];
+        `,
+      },
+    });
+    const observation = createMockObservation();
+
+    const result = await evaluatePolicy(repos, policy, observation);
+
+    expect(result.effects[0]).toEqual({
+      effect: 'log',
+      level: 'info',
+      message: 'Related artifacts: artifact-plan,artifact-journal',
+    });
+  });
+
+  it('multiple policies can coordinate around the same episode', async () => {
+    const repos = createMockRepos();
+    (repos.episodes.getActive as any).mockResolvedValue([
+      createMockEpisode({
+        id: 'ep-sleep',
+        kind: 'regulatory',
+        variables: [{ variableId: 'var-sleep', intent: 'stabilize' }],
+      }),
+    ]);
+
+    const policies = [
+      createMockPolicy({
+        id: 'p1-sleep-monitor',
+        priority: 10,
+        implementation: {
+          kind: 'typescript',
+          code: `
+            const episodes = ctx.canon.getActiveEpisodes();
+            const hasSleepEpisode = episodes.some(ep =>
+              ep.variables.some(v => v.variableId === 'var-sleep')
+            );
+            if (hasSleepEpisode) {
+              return [{ effect: 'tag_observation', tags: ['episode:sleep-regulation'] }];
+            }
+            return [];
+          `,
+        },
+      }),
+      createMockPolicy({
+        id: 'p2-notification',
+        priority: 20,
+        implementation: {
+          kind: 'typescript',
+          code: `
+            const isEpisodeTagged = ctx.priorEffects.some(e =>
+              e.effect === 'tag_observation' &&
+              e.tags.some(t => t.startsWith('episode:'))
+            );
+            if (isEpisodeTagged) {
+              return [{ effect: 'log', level: 'info', message: 'Episode-related observation' }];
+            }
+            return [];
+          `,
+        },
+      }),
+    ];
+
+    const observation = createMockObservation();
+    const result = await evaluatePolicies(repos, policies, observation);
+
+    expect(result.effects).toHaveLength(2);
+    expect(result.effects[0]).toEqual({
+      effect: 'tag_observation',
+      tags: ['episode:sleep-regulation'],
+    });
+    expect(result.effects[1]).toEqual({
+      effect: 'log',
+      level: 'info',
+      message: 'Episode-related observation',
+    });
+  });
+});
