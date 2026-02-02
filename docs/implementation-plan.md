@@ -553,11 +553,11 @@ _Build the authority layer._
 
 ---
 
-## Phase 8: Artifacts and Revisions
+## Phase 8: Artifacts and Revisions ✓
 
 _Build the content authoring layer._
 
-### 8.1 — Artifact CRUD
+### 8.1 — Artifact CRUD ✓
 
 **What this is:** Create, read, update artifacts.
 
@@ -567,17 +567,17 @@ _Build the content authoring layer._
 
 **Sub-tasks:**
 
-- [ ] Implement artifact creation with required fields (about, page)
-- [ ] Implement artifact retrieval (by ID, by node)
-- [ ] Implement artifact update (creates new revision, bumps trunk version)
-- [ ] Implement artifact status transitions (draft → active → published → archived)
-- [ ] Write tests for artifact lifecycle
+- [x] Implement artifact creation with required fields (about, page)
+- [x] Implement artifact retrieval (by ID, by node)
+- [x] Implement artifact update (creates new revision, bumps trunk version)
+- [x] Implement artifact status transitions (draft → active → published → archived)
+- [x] Write tests for artifact lifecycle (45 tests)
 
 **Plain English:** An Artifact is a piece of content — a note, a page, a document. Every time you save, it creates a new revision (like version history). You can always go back to previous versions.
 
 ---
 
-### 8.2 — Revision History
+### 8.2 — Revision History ✓
 
 **What this is:** Access and navigate revision history.
 
@@ -587,16 +587,16 @@ _Build the content authoring layer._
 
 **Sub-tasks:**
 
-- [ ] Implement `getRevisions(artifactId): Revision[]`
-- [ ] Implement `getRevision(artifactId, version): Revision`
-- [ ] Implement revision diffing (what changed between versions)
-- [ ] Write tests for revision queries
+- [x] Implement `getRevisions(artifactId): Revision[]`
+- [x] Implement `getRevision(artifactId, version): Revision`
+- [x] Implement revision diffing (what changed between versions) — `diffRevisions()`, `diffPageDocs()`, `summarizeDiff()`
+- [x] Write tests for revision queries (25 tests)
 
 **Plain English:** Every artifact remembers its history. You can see all previous versions, compare them, and understand how the content evolved.
 
 ---
 
-### 8.3 — PageDoc Block System
+### 8.3 — PageDoc Block System ✓
 
 **What this is:** The structured content format inside artifacts.
 
@@ -606,11 +606,11 @@ _Build the content authoring layer._
 
 **Sub-tasks:**
 
-- [ ] Define core block types (paragraph, heading, list, code, image, etc.)
-- [ ] Implement block validation
-- [ ] Implement block serialization/deserialization
-- [ ] Make block types extensible (for pack-defined blocks)
-- [ ] Write tests for block operations
+- [x] Define core block types (paragraph, heading, list, code, image, etc.) — 13 core types
+- [x] Implement block validation — `validateBlock()`, `validatePageDoc()`
+- [x] Implement block serialization/deserialization — helper functions: `createBlock()`, `createParagraph()`, `createHeading()`, etc.
+- [x] Make block types extensible (for pack-defined blocks) — `allowCustomTypes` option, custom validators
+- [x] Write tests for block operations (59 tests)
 
 **Plain English:** Inside an artifact, content is stored as "blocks" — paragraphs, headings, lists, etc. This structure is standard so different renderers (web, mobile, export) can all understand it.
 

@@ -177,3 +177,16 @@ export {
   getImpliedScopes,
   deriveGrantsFromEdges,
 } from './access/index.js';
+
+// Artifact utilities (Phase 8.2)
+export {
+  // Revision diffing
+  diffRevisions,
+  diffPageDocs,
+  summarizeDiff,
+  // Types
+  type ChangeType,
+  type FieldChange,
+  type BlockChange,
+  type RevisionDiff,
+} from './artifacts/index.js';
