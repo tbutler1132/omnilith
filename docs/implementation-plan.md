@@ -660,11 +660,11 @@ _Build the projection layer._
 
 ---
 
-## Phase 10: Prism (The Commit Boundary)
+## Phase 10: Prism (The Commit Boundary) ✓
 
 _Build the mutation gateway._
 
-### 10.1 — Prism API Layer
+### 10.1 — Prism API Layer ✓
 
 **What this is:** The single interface through which all canon mutations happen.
 
@@ -674,18 +674,26 @@ _Build the mutation gateway._
 
 **Sub-tasks:**
 
-- [ ] Define Prism operation types (createArtifact, updateArtifact, createEpisode, approveAction, etc.)
-- [ ] Implement operation handlers
-- [ ] Implement transaction wrapping (all-or-nothing commits)
-- [ ] Implement audit logging (who changed what, when)
-- [ ] Reject any mutation that tries to bypass Prism
-- [ ] Write tests for mutation operations
+- [x] Define Prism operation types (createArtifact, updateArtifact, createEpisode, approveAction, etc.)
+- [x] Implement operation handlers
+- [x] Implement transaction wrapping (all-or-nothing commits)
+- [x] Implement audit logging (who changed what, when)
+- [x] Reject any mutation that tries to bypass Prism
+- [x] Write tests for mutation operations
 
 **Plain English:** Prism is the gatekeeper. Any change to canon (artifacts, episodes, variables, etc.) must go through Prism. This ensures everything is audited, validated, and transactional.
 
+**Implementation Notes:**
+- `Prism` class in `@omnilith/runtime` provides the commit boundary
+- All operations require actor information for audit trail
+- `AuditStore` interface with in-memory implementation for audit entries
+- Causality tracking (observationId, policyId, actionRunId) for replay support
+- Agent delegation constraints enforced (maxRiskLevel, allowedEffects, expiresAt)
+- Transactional repository context using Drizzle ORM transactions
+
 ---
 
-### 10.2 — Prism Context for Policies
+### 10.2 — Prism Context for Policies ✓
 
 **What this is:** Read-only access to canon state for policies.
 
@@ -695,11 +703,17 @@ _Build the mutation gateway._
 
 **Sub-tasks:**
 
-- [ ] Implement `canon.getArtifact()`, `canon.getEntity()`, etc. in policy context
-- [ ] Ensure all accessors return frozen/immutable objects
-- [ ] Write tests verifying policies cannot mutate state
+- [x] Implement `canon.getArtifact()`, `canon.getEntity()`, etc. in policy context
+- [x] Ensure all accessors return frozen/immutable objects
+- [x] Write tests verifying policies cannot mutate state
 
 **Plain English:** Policies need to see the current state to make decisions, but they're not allowed to change anything directly. They can only return effects, which Prism then executes.
+
+**Implementation Notes:**
+- `createCanonAccessor()` provides read-only access with all results frozen via `deepFreeze()`
+- Pre-fetch support for artifacts and entities (`prefetchArtifactIds`, `prefetchEntityIds`)
+- Observation query limits enforced per spec (§0.6): default 100, max 1000
+- Synchronous observation queries from pre-fetched data for policy performance
 
 ---
 
