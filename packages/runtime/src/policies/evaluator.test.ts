@@ -126,7 +126,7 @@ function createMockRepos(nodeOverride?: Node): RepositoryContext {
       addComputeSpec: vi.fn(),
       updateComputeSpec: vi.fn(),
       removeComputeSpec: vi.fn(),
-      getByNode: vi.fn(),
+      getByNode: vi.fn().mockResolvedValue([]),
     },
     episodes: {
       getActive: vi.fn().mockResolvedValue([]),
@@ -879,7 +879,11 @@ describe('CanonAccessor', () => {
 
     await evaluatePolicy(repos, policy, observation);
 
-    const queryArg = (repos.observations.query as any).mock.calls[0][0] as ObservationFilter;
+    // The first call (index 0) is the pre-fetch for estimates (7 days)
+    // The second call (index 1) is from the policy's queryObservations
+    const calls = (repos.observations.query as any).mock.calls;
+    expect(calls.length).toBeGreaterThanOrEqual(2);
+    const queryArg = calls[1][0] as ObservationFilter;
     expect(queryArg.window).toEqual({ hours: 24 });
   });
 
@@ -932,8 +936,10 @@ describe('CanonAccessor', () => {
         timeRange: { start: '2024-01-01', end: '2024-01-15' },
       })
     );
-    // And should NOT have a window added
-    const queryArg = (repos.observations.query as any).mock.calls[0][0] as ObservationFilter;
+    // The policy's query is the second call (index 1), first is estimates pre-fetch
+    const calls = (repos.observations.query as any).mock.calls;
+    expect(calls.length).toBeGreaterThanOrEqual(2);
+    const queryArg = calls[1][0] as ObservationFilter;
     expect(queryArg.window).toBeUndefined();
   });
 });

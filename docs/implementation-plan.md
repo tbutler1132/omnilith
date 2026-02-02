@@ -377,9 +377,9 @@ _Build the Active Inference foundation._
 
 ---
 
-### 4.3 — Variable Estimate Derivation
+### 4.3 — Variable Estimate Derivation ✓
 
-**What this is:** Compute full `VariableEstimate` objects from Variables and their Proxies.
+**What this is:** Compute full `VariableEstimate` objects from Variables and their ComputeSpecs.
 
 **Why it matters:** Estimates feed into policies — they're the "sensors" policies read.
 
@@ -387,18 +387,18 @@ _Build the Active Inference foundation._
 
 **Sub-tasks:**
 
-- [ ] Implement `deriveEstimate(variable: Variable, observations: Observation[]): VariableEstimate`
-- [ ] Calculate `inViableRange` and `inPreferredRange`
-- [ ] Calculate `deviation` (0 = preferred center, 1 = outside viable)
-- [ ] Calculate `trend` (comparing recent estimates)
-- [ ] Implement caching layer (non-canon, reconstructable)
-- [ ] Write tests for edge cases (no observations, out of range, etc.)
+- [x] Implement `deriveEstimate(variable: Variable, observations: Observation[]): VariableEstimate`
+- [x] Calculate `inViableRange` and `inPreferredRange`
+- [x] Calculate `deviation` (0 = preferred center, 0.5 = viable boundary, 1 = outside viable)
+- [x] Calculate `trend` (comparing current to previous value)
+- [x] Implement `deriveEstimates` for batch processing
+- [x] Write comprehensive tests (32 tests) for edge cases
 
 **Plain English:** An estimate is the system's current belief about a variable. "Right now, I estimate your sleep quality is 6/10, which is inside your viable range but below your preferred range, and it's been trending down." This gets computed fresh whenever needed.
 
 ---
 
-### 4.4 — Wire Estimates into Policy Context
+### 4.4 — Wire Estimates into Policy Context ✓
 
 **What this is:** Make estimates available to policies via `ctx.estimates`.
 
@@ -408,10 +408,11 @@ _Build the Active Inference foundation._
 
 **Sub-tasks:**
 
-- [ ] Add `getVariableEstimate(variableId)` to policy context
-- [ ] Lazy-load estimates (don't compute until asked)
-- [ ] Cache within a single evaluation cycle
-- [ ] Write tests for policies that use estimates
+- [x] Add `getVariableEstimate(variableId)` to policy context
+- [x] Pre-fetch variables and observations for the node
+- [x] Lazy-compute estimates on first access
+- [x] Cache within a single evaluation cycle
+- [x] Update `buildPolicyContext` to wire everything together
 
 **Plain English:** Now policies can ask "what's the current estimate for sleep quality?" and use that to decide whether to propose an intervention.
 

@@ -1,8 +1,16 @@
 // Policy evaluation exports
 
 // Context building
-export { buildPolicyContext, createCanonAccessor, createEstimatesAccessor } from './context.js';
-export type { BuildPolicyContextOptions } from './context.js';
+export {
+  buildPolicyContext,
+  createCanonAccessor,
+  createEstimatesAccessor,
+  createEmptyEstimatesAccessor,
+} from './context.js';
+export type {
+  BuildPolicyContextOptions,
+  EstimatesAccessorData,
+} from './context.js';
 
 // Policy compilation
 export { compilePolicy, getCompiledPolicy, clearCompiledPolicyCache } from './compiler.js';

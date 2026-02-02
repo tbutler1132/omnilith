@@ -165,7 +165,7 @@ function createMockRepos(overrides: Partial<RepositoryContext> = {}): Repository
       addComputeSpec: vi.fn(),
       updateComputeSpec: vi.fn(),
       removeComputeSpec: vi.fn(),
-      getByNode: vi.fn(),
+      getByNode: vi.fn().mockResolvedValue([]),
     },
     episodes: {
       getActive: vi.fn().mockResolvedValue([]),

@@ -132,9 +132,9 @@ export {
   getRegisteredEffectTypes,
 } from './effects/index.js';
 
-// Variable estimation (Phase 4.2)
+// Variable estimation (Phase 4.2 & 4.3)
 export {
-  // ComputeSpec evaluation
+  // ComputeSpec evaluation (Phase 4.2)
   evaluateComputeSpec,
   evaluateComputeSpecs,
   // Helper functions
@@ -144,8 +144,18 @@ export {
   applyCountLimit,
   extractNumericValue,
   aggregate,
+  // Estimate derivation (Phase 4.3)
+  deriveEstimate,
+  deriveEstimates,
+  isInRange,
+  isInPreferredBounds,
+  getRangeCenter,
+  calculateDeviation,
+  calculateTrend,
   // Types
   type ComputeResult,
+  type DeriveEstimateOptions,
+  type DeriveEstimatesResult,
   // Errors
   ComputeSpecError,
 } from './variables/index.js';

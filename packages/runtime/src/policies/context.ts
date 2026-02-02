@@ -16,6 +16,7 @@ import type {
   Episode,
 } from '@omnilith/protocol';
 import type { RepositoryContext } from '@omnilith/repositories';
+import { deriveEstimate } from '../variables/estimate.js';
 
 /**
  * Options for building a PolicyContext
@@ -106,29 +107,65 @@ export function createCanonAccessor(
 }
 
 /**
+ * Data needed to compute estimates.
+ * Pre-fetched to allow synchronous access during policy evaluation.
+ */
+export type EstimatesAccessorData = {
+  variables: Map<Id, Variable>;
+  observations: Observation[];
+  referenceTime: Date;
+};
+
+/**
  * Creates an EstimatesAccessor for derived variable estimates.
  *
- * Note: In Phase 4, this will be replaced with actual estimate computation
- * from ComputeSpecs. For now, it returns null (estimates not yet implemented).
+ * Implements Phase 4.4: estimates are computed lazily on first access
+ * using pre-fetched variables and observations.
+ *
+ * @param data - Pre-fetched variables and observations for the node
+ * @returns EstimatesAccessor that computes estimates on demand
  */
 export function createEstimatesAccessor(
-  _repos: RepositoryContext,
-  _nodeId: Id
+  data: EstimatesAccessorData
 ): EstimatesAccessor {
-  // Placeholder cache for lazy-loaded estimates within an evaluation cycle
-  const _estimateCache = new Map<Id, VariableEstimate | null>();
+  // Cache for estimates computed within this evaluation cycle
+  const estimateCache = new Map<Id, VariableEstimate | null>();
 
   return {
-    getVariableEstimate: (_variableId: Id): VariableEstimate | null => {
-      // TODO: Implement in Phase 4 (Variable Estimate Derivation)
-      // This will:
-      // 1. Check cache
-      // 2. Load Variable and its ComputeSpecs
-      // 3. Query relevant observations
-      // 4. Evaluate proxies to derive estimate
-      // 5. Cache and return
-      return null;
+    getVariableEstimate: (variableId: Id): VariableEstimate | null => {
+      // Check cache first
+      if (estimateCache.has(variableId)) {
+        return estimateCache.get(variableId)!;
+      }
+
+      // Get the variable
+      const variable = data.variables.get(variableId);
+      if (!variable) {
+        estimateCache.set(variableId, null);
+        return null;
+      }
+
+      // Derive the estimate
+      const estimate = deriveEstimate(variable, data.observations, {
+        referenceTime: data.referenceTime,
+      });
+
+      // Cache and return
+      estimateCache.set(variableId, estimate);
+      return estimate;
     },
+  };
+}
+
+/**
+ * Legacy signature for backward compatibility.
+ * Creates an EstimatesAccessor that returns null (no pre-fetched data).
+ *
+ * @deprecated Use createEstimatesAccessor(data: EstimatesAccessorData) instead
+ */
+export function createEmptyEstimatesAccessor(): EstimatesAccessor {
+  return {
+    getVariableEstimate: (): VariableEstimate | null => null,
   };
 }
 
@@ -182,13 +219,28 @@ export async function buildPolicyContext(
   // Pre-fetch active episodes
   const activeEpisodes = await repos.episodes.getActive(observation.nodeId);
 
-  // Create canon accessor data (for v1, artifacts/entities/variables are not pre-fetched)
+  // Pre-fetch variables for the node (Phase 4.4)
+  const variablesList = await repos.variables.getByNode(observation.nodeId);
+  const variablesMap = new Map<Id, Variable>();
+  for (const v of variablesList) {
+    variablesMap.set(v.id, v);
+  }
+
+  // Pre-fetch recent observations for estimate computation (Phase 4.4)
+  // We fetch observations from the last 7 days to support trend calculations
+  const recentObservations = await repos.observations.query({
+    nodeId: observation.nodeId,
+    window: { hours: 24 * 7 }, // 7 days for trend support
+    limit: MAX_OBSERVATION_LIMIT,
+  });
+
+  // Create canon accessor data
   const canonData: CanonAccessorData = {
     artifacts: new Map(),
     entities: new Map(),
-    variables: new Map(),
+    variables: variablesMap,
     activeEpisodes,
-    observations: [],
+    observations: recentObservations,
   };
 
   // Create synchronous observation query function
@@ -223,7 +275,14 @@ export async function buildPolicyContext(
 
   // Build accessors
   const canon = createCanonAccessor(canonData, queryFn);
-  const estimates = createEstimatesAccessor(repos, observation.nodeId);
+
+  // Build estimates accessor with pre-fetched data (Phase 4.4)
+  const referenceTime = evaluatedAt ? new Date(evaluatedAt) : new Date();
+  const estimates = createEstimatesAccessor({
+    variables: variablesMap,
+    observations: recentObservations,
+    referenceTime,
+  });
 
   return {
     observation,
