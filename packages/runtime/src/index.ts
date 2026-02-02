@@ -159,3 +159,21 @@ export {
   // Errors
   ComputeSpecError,
 } from './variables/index.js';
+
+// Access Control (Phase 7.2)
+export {
+  // Main class
+  AccessChecker,
+  createAccessChecker,
+  // Types
+  type AccessCheckResult,
+  type CheckAccessOptions,
+  type CheckAccessInput,
+  type ScopesCheckResult,
+  // Utility functions
+  impliesRead,
+  impliesWrite,
+  impliesAdmin,
+  getImpliedScopes,
+  deriveGrantsFromEdges,
+} from './access/index.js';

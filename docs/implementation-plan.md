@@ -503,11 +503,11 @@ _Build the semantic identity layer._
 
 ---
 
-## Phase 7: Access Control (Grants)
+## Phase 7: Access Control (Grants) ✓
 
 _Build the authority layer._
 
-### 7.1 — Grant Storage
+### 7.1 — Grant Storage ✓
 
 **What this is:** CRUD for grants — explicit permissions.
 
@@ -517,17 +517,17 @@ _Build the authority layer._
 
 **Sub-tasks:**
 
-- [ ] Define grant scopes (read, write, admin, specific capabilities)
-- [ ] Implement grant creation (nodeId → resourceId → scopes)
-- [ ] Implement grant revocation
-- [ ] Implement grant queries (what can node X access? who can access resource Y?)
-- [ ] Write tests for grant lifecycle
+- [x] Define grant scopes (read, write, admin, specific capabilities)
+- [x] Implement grant creation (nodeId → resourceId → scopes)
+- [x] Implement grant revocation
+- [x] Implement grant queries (what can node X access? who can access resource Y?)
+- [x] Write tests for grant lifecycle (46 tests)
 
 **Plain English:** A Grant says "Node A has permission to do X with resource Y." All access control is done through grants — there's no hidden logic. You can inspect exactly who has access to what.
 
 ---
 
-### 7.2 — Access Checking
+### 7.2 — Access Checking ✓
 
 **What this is:** Utility functions to check permissions before operations.
 
@@ -537,12 +537,19 @@ _Build the authority layer._
 
 **Sub-tasks:**
 
-- [ ] Implement `checkAccess(nodeId, resourceId, scope): boolean`
-- [ ] Implement access guards for repositories (refuse unauthorized operations)
-- [ ] Integrate with node edges (policies may interpret edges as implicit grants)
-- [ ] Write tests for access scenarios
+- [x] Implement `checkAccess(nodeId, resourceId, scope): boolean` via `AccessChecker` class
+- [x] Implement access guards for repositories (via AccessChecker — actual enforcement at API layer in Phase 13)
+- [x] Integrate with node edges (policies may interpret edges as implicit grants via `deriveGrantsFromEdges`)
+- [x] Write tests for access scenarios (38 tests)
 
 **Plain English:** Before any sensitive operation, the system asks "does this node have permission?" This function answers that question by checking grants.
+
+**Implementation Notes:**
+- `AccessChecker` class in `@omnilith/runtime` provides access checking
+- Supports explicit grants, self-access, owner access, and edge-based implicit grants
+- `deriveGrantsFromEdges()` utility for policies to interpret edges as grants
+- `canApprove()` method for checking ActionRun approval authority
+- Agent delegation constraints (maxRiskLevel, allowedEffects, expiresAt) enforced
 
 ---
 
