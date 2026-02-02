@@ -190,3 +190,19 @@ export {
   type BlockChange,
   type RevisionDiff,
 } from './artifacts/index.js';
+
+// Prism - The Commit Boundary (Phase 10)
+export {
+  // Main class
+  Prism,
+  createPrism,
+  type PrismOptions,
+  // Audit
+  type AuditStore,
+  createInMemoryAuditStore,
+  // Errors
+  PrismError,
+  PrismValidationError,
+  PrismAuthorizationError,
+  PrismOperationError,
+} from './prism/index.js';

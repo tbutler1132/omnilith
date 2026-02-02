@@ -11,3 +11,4 @@ export * from './actions.js';
 export * from './surfaces.js';
 export * from './entities.js';
 export * from './grants.js';
+export * from './prism.js';

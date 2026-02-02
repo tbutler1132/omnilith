@@ -9,4 +9,7 @@ export { PgActionRunRepository } from './action-run-repository.js';
 export { PgSurfaceRepository } from './surface-repository.js';
 export { PgEntityRepository } from './entity-repository.js';
 export { PgGrantRepository } from './grant-repository.js';
-export { createPgRepositoryContext } from './context.js';
+export {
+  createPgRepositoryContext,
+  createTransactionalPgRepositoryContext,
+} from './context.js';
