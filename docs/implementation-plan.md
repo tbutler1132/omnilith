@@ -717,11 +717,11 @@ _Build the mutation gateway._
 
 ---
 
-## Phase 11: Packs (Extension System)
+## Phase 11: Packs (Extension System) ✓
 
 _Build the plugin architecture._
 
-### 11.1 — Pack Definition Format
+### 11.1 — Pack Definition Format ✓
 
 **What this is:** The structure of a pack — a bundle of extensions.
 
@@ -731,16 +731,23 @@ _Build the plugin architecture._
 
 **Sub-tasks:**
 
-- [ ] Define `Pack` manifest schema (name, version, dependencies)
-- [ ] Define pack contents: sensors, policies, actions, entity types, block types
-- [ ] Implement pack validation
-- [ ] Write tests for pack structure
+- [x] Define `Pack` manifest schema (name, version, dependencies)
+- [x] Define pack contents: sensors, policies, actions, entity types, block types
+- [x] Implement pack validation
+- [x] Write tests for pack structure (30 tests)
 
 **Plain English:** A Pack is a plugin that adds new stuff — new types of actions, new policies, new entity types. It's packaged in a standard way so the system knows how to load it.
 
+**Implementation Notes:**
+- `Pack` type with `PackManifest` (name, version, title, dependencies, protocolVersion) and `PackContents`
+- Contents include: `PackSensorDefinition`, `PackPolicyDefinition`, `PackActionDefinition`, `PackEffectDefinition`, `PackEntityTypeDefinition`, `PackBlockDefinition`, `PackVariableTemplate`
+- `SemVer` type with utilities: `parseSemVer()`, `compareSemVer()`, `satisfiesDependency()`
+- Namespace helpers: `packEffectType()`, `packActionType()`, `packEntityType()`, `packBlockType()`
+- Comprehensive validation in `@omnilith/protocol` with error codes and warnings
+
 ---
 
-### 11.2 — Pack Loading and Registration
+### 11.2 — Pack Loading and Registration ✓
 
 **What this is:** Load packs into the runtime.
 
@@ -750,13 +757,21 @@ _Build the plugin architecture._
 
 **Sub-tasks:**
 
-- [ ] Implement pack discovery (scan a directory, read manifests)
-- [ ] Implement pack registration (register actions, policies, etc. with their registries)
-- [ ] Handle pack dependencies (load in correct order)
-- [ ] Implement pack namespacing (pack effects use `pack:name:effect` format)
-- [ ] Write tests for pack loading
+- [x] Implement pack discovery (scan a directory, read manifests)
+- [x] Implement pack registration (register actions, policies, etc. with their registries)
+- [x] Handle pack dependencies (load in correct order via topological sort)
+- [x] Implement pack namespacing (pack effects use `pack:name:effect` format)
+- [x] Write tests for pack loading (46 tests)
 
 **Plain English:** When the system starts, it finds all packs, loads them in the right order, and registers their extensions. Now you can use the new actions and policies they provide.
+
+**Implementation Notes:**
+- `PackRegistry` class with `register()`, `loadPack()`, `unloadPack()`, `checkDependencies()`
+- `resolveLoadOrder()` for topological sort of pack dependencies
+- `loadPack()` and `loadPacks()` for single/batch loading with validation
+- Extension handlers for entity types, block types, sensors, policy templates, variable templates
+- Integrates with `effectRegistry` (global) and `ActionRegistry` (provided)
+- Error types: `PackNotFoundError`, `PackAlreadyLoadedError`, `PackDependencyError`, `PackVersionError`, `PackCircularDependencyError`
 
 ---
 
@@ -1014,7 +1029,7 @@ For solo development, consider this sequence:
 12. **Phase 10** — Prism (mutation gateway)
 13. **Phase 1.3** — Bundle import/export (prove portability)
 14. **Phase 12** — Replay and determinism (prove correctness)
-15. **Phase 11** — Packs (extension system)
+15. **Phase 11** — Packs (extension system) ✓
 16. **Phase 13** — Web API
 17. **Phase 14** — Web UI
 18. **Phase 15** — Polish
