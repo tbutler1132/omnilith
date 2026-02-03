@@ -1042,6 +1042,273 @@ The v1 interpreter uses:
 
 These are implementation choices, not protocol requirements.
 
+### 16.1 Component Architecture
+
+The web UI is organized around the Projection Law: **Surfaces are read-only projections; Prism is the commit boundary.**
+
+**Layer Separation:**
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Prism (Commit Boundary)                            │
+│  - Editing, revision history, policy config         │
+│  - Action approval, canon mutation                  │
+│  - Device panels (sensors, process, audio)          │
+├─────────────────────────────────────────────────────┤
+│  Surfaces (Read-Only Projections)                   │
+│  - PageSurface, GallerySurface, TimelineSurface     │
+│  - Derive entirely from canon + context             │
+│  - No local state that isn't derivable              │
+├─────────────────────────────────────────────────────┤
+│  Primitives (Stateless UI Components)               │
+│  - Button, Overlay, Card, etc.                      │
+│  - Pure presentation, no business logic             │
+└─────────────────────────────────────────────────────┘
+```
+
+**Prism Subcomponents:**
+
+| Component | Responsibility |
+|-----------|----------------|
+| `PrismProvider` | State context (open, activePage, mapView) |
+| `Prism` | Shell: overlay, keyboard handling |
+| `Map` | Spatial navigation within/between nodes |
+| `Minimap` | Compact location indicator, nav trigger |
+| `Menu` | Tab navigation for Map + device panels |
+| `DeviceRegistry` | Plugin system for device panel components |
+
+**Surface Rendering:**
+
+Surfaces are rendered by a factory based on `surface.kind`:
+
+```ts
+function SurfaceRenderer({ surface }: { surface: Surface }) {
+  switch (surface.kind) {
+    case "page": return <PageSurface surface={surface} />;
+    case "gallery": return <GallerySurface surface={surface} />;
+    case "timeline": return <TimelineSurface surface={surface} />;
+    case "workshop": return <WorkshopSurface surface={surface} />;
+    default: return <CustomSurface surface={surface} />;
+  }
+}
+```
+
+Each Surface component receives canon data and projects it. Surfaces NEVER mutate canon directly.
+
+### 16.2 Design Tokens
+
+To maintain visual consistency and enable theming, the interpreter uses CSS custom properties as design tokens.
+
+**Token Categories:**
+
+```css
+:root {
+  /* Surface hierarchy */
+  --color-surface-base: #000;
+  --color-surface-raised: rgba(255, 255, 255, 0.02);
+  --color-surface-overlay: rgba(0, 0, 0, 0.95);
+
+  /* Text hierarchy */
+  --color-text-primary: rgba(255, 255, 255, 0.85);
+  --color-text-secondary: rgba(255, 255, 255, 0.5);
+  --color-text-muted: rgba(255, 255, 255, 0.3);
+
+  /* Interactive states */
+  --color-interactive-default: rgba(255, 255, 255, 0.3);
+  --color-interactive-hover: rgba(255, 255, 255, 0.6);
+  --color-interactive-active: rgba(255, 255, 255, 0.9);
+
+  /* Category glows (for map markers) */
+  --color-category-exhibit: rgba(45, 212, 191, 0.6);
+  --color-category-plaza: rgba(251, 191, 36, 0.6);
+
+  /* Status indicators */
+  --color-status-online: rgba(45, 212, 191, 0.8);
+  --color-status-warning: rgba(251, 191, 36, 0.8);
+  --color-status-error: rgba(239, 68, 68, 0.8);
+
+  /* Spacing scale (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, monospace;
+  --tracking-tight: 0.1em;
+  --tracking-wide: 0.2em;
+  --tracking-wider: 0.3em;
+}
+```
+
+**CSS Module Pattern:**
+
+Each component has a co-located `.module.css` file that imports tokens:
+
+```
+/components/prism/
+  Prism.tsx
+  Prism.module.css
+  Map.tsx
+  Map.module.css
+```
+
+### 16.3 Repository Interfaces
+
+To preserve substrate independence (§0.4), all data access is mediated by repository interfaces. The web interpreter implements these for Postgres, but the same interfaces could back IndexedDB or filesystem implementations.
+
+**Core Repositories:**
+
+```ts
+interface SurfaceRepository {
+  getSurfaces(nodeId: string): Promise<Surface[]>;
+  getSurface(id: string): Promise<Surface | null>;
+}
+
+interface ArtifactRepository {
+  getArtifact(id: string): Promise<Artifact | null>;
+  getArtifactRevisions(id: string): Promise<ArtifactRevision[]>;
+  createRevision(artifactId: string, content: PageDoc): Promise<ArtifactRevision>;
+}
+
+interface ObservationRepository {
+  query(filter: ObservationFilter): Promise<Observation[]>;
+  append(observation: Omit<Observation, "id">): Promise<Observation>;
+}
+
+interface VariableRepository {
+  getVariables(nodeId: string): Promise<Variable[]>;
+  getEstimate(variableId: string): Promise<VariableEstimate | null>;
+}
+```
+
+**Implementation Binding:**
+
+```ts
+// lib/repositories/index.ts
+import { PostgresSurfaceRepository } from "./postgres/surface";
+import { PostgresArtifactRepository } from "./postgres/artifact";
+
+export const surfaceRepo: SurfaceRepository = new PostgresSurfaceRepository();
+export const artifactRepo: ArtifactRepository = new PostgresArtifactRepository();
+```
+
+This allows swapping implementations without changing component code.
+
+### 16.4 Module Structure
+
+Recommended directory structure for the web interpreter:
+
+```
+src/
+├── components/
+│   ├── surfaces/              # Read-only projection components
+│   │   ├── PageSurface.tsx
+│   │   ├── GallerySurface.tsx
+│   │   ├── SurfaceRenderer.tsx
+│   │   └── index.ts
+│   │
+│   ├── prism/                 # Commit boundary UI
+│   │   ├── Prism.tsx
+│   │   ├── PrismProvider.tsx
+│   │   ├── navigation/
+│   │   │   ├── Map.tsx
+│   │   │   ├── Minimap.tsx
+│   │   │   └── hooks/
+│   │   │       └── useZoomPan.ts
+│   │   ├── devices/
+│   │   │   ├── DevicePanel.tsx
+│   │   │   └── registry.ts
+│   │   └── index.ts
+│   │
+│   └── ui/                    # Stateless primitives
+│       ├── Button.tsx
+│       ├── Overlay.tsx
+│       └── index.ts
+│
+├── contexts/
+│   ├── NodeContext.tsx        # Current node, grants, edges
+│   ├── AudioContext/
+│   │   ├── AudioContext.tsx
+│   │   ├── useAudioQueue.ts
+│   │   └── useAudioPlayback.ts
+│   └── WorldContext.tsx
+│
+├── lib/
+│   ├── repositories/          # Substrate-agnostic data access
+│   │   ├── interfaces.ts
+│   │   ├── postgres/
+│   │   └── index.ts
+│   ├── types/                 # UI-specific type extensions
+│   └── utils/
+│
+├── styles/
+│   ├── tokens.css             # Design tokens
+│   ├── globals.css            # Resets + token imports
+│   └── animations.css         # Shared keyframes
+│
+└── app/                       # Next.js app router pages
+    ├── layout.tsx
+    ├── page.tsx
+    └── [surface]/
+        └── page.tsx
+```
+
+### 16.5 Hooks as Behavior Extraction
+
+Complex interaction logic is extracted into hooks, keeping components focused on rendering:
+
+| Hook | Purpose |
+|------|---------|
+| `useZoomPan` | Touch/wheel zoom and drag panning for Map |
+| `useCrosshair` | Mouse-tracking crosshair overlay |
+| `useCursor` | Minimap arrow that follows scroll/cursor |
+| `useAuth` | Authentication state with server revalidation |
+| `useAudioQueue` | Queue management for audio playback |
+| `useAudioPlayback` | HTMLAudioElement wrapper with events |
+
+**Pattern:**
+
+```ts
+// hooks/useZoomPan.ts
+export function useZoomPan(options?: ZoomPanOptions) {
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Touch, wheel, and drag handling logic...
+
+  return {
+    zoom,
+    pan,
+    containerRef,
+    handlers: { onMouseDown, onMouseMove, onMouseUp, onMouseLeave },
+    zoomIn,
+    zoomOut,
+    resetView,
+  };
+}
+```
+
+Components consume hooks without knowing implementation details:
+
+```tsx
+function Map({ ... }) {
+  const { zoom, pan, containerRef, handlers, zoomIn, zoomOut } = useZoomPan();
+
+  return (
+    <div ref={containerRef} {...handlers}>
+      <div style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}>
+        {/* Map content */}
+      </div>
+    </div>
+  );
+}
+```
+
 ---
 
 ## 17) Compatibility Statement
