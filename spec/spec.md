@@ -90,6 +90,17 @@ The protocol’s canonical interchange format is a **Omnilith Bundle**.
         <policyId>.json | .ts
       /grants
         grants.json
+  /packs
+    /<packId>
+      pack.json
+      /policies
+        <policyId>.json | .ts
+      /actions
+        <actionId>.json
+      /entity-types
+        <typeId>.json
+      /observation-types
+        <typeId>.json
   /log
     observations.ndjson
     action_runs.ndjson
@@ -823,9 +834,194 @@ Grants apply to Subject‑Nodes and resources.
 
 ## 14) Packs
 
-Packs bundle sensors, policies, actions, and entity definitions.
+Packs are **portable bundles of capability** that extend the protocol without modifying it.
 
-They are protocol‑compliant extensions.
+A Pack may include:
+- Policies
+- Action definitions
+- Entity type definitions
+- Observation type definitions
+- Custom effect types
+
+### 14.1 Pack Model
+
+```ts
+export type Pack = {
+  id: string;                        // e.g., "notion-sync"
+  name: string;
+  version: string;
+  description?: string;
+
+  // What the pack provides
+  provides: {
+    policies?: PolicyDefinition[];
+    actions?: ActionDefinition[];
+    entityTypes?: EntityTypeDefinition[];
+    observationTypes?: ObservationTypeDefinition[];
+    effects?: EffectTypeDefinition[];
+  };
+
+  // What the pack requires to function
+  requires?: {
+    scopes?: string[];               // e.g., ["observe", "propose_action"]
+    grants?: GrantType[];
+  };
+
+  // Constraints when used by agents
+  agentConstraints?: {
+    maxRiskLevel?: RiskLevel;
+    allowedEffects?: string[];
+  };
+};
+```
+
+### 14.2 Namespacing
+
+All pack-provided definitions MUST be namespaced with the pack ID:
+
+- Observation types: `pack:notion-sync:page_updated`
+- Effects: `pack:notion-sync:sync_page`
+- Entity types: `pack:notion-sync:notion_page`
+- Actions: `pack:notion-sync:fetch_page`
+
+Namespacing prevents collisions and makes provenance explicit.
+
+### 14.3 Policy Priority
+
+Pack-provided policies run at **lower priority** than node-defined policies.
+
+- Node policies evaluate first and MAY suppress pack policy evaluation
+- Pack policies see `priorEffects` from node policies
+- If a node policy returns `{ effect: "suppress" }`, pack policies do not run
+
+This ensures node owners retain ultimate control over behavior within their boundary.
+
+### 14.4 Installation (Deferred)
+
+Pack installation, versioning, updates, and dependency resolution are interpreter concerns, not protocol requirements. A valid interpreter MAY:
+
+- Pre-bundle packs at build time
+- Load packs dynamically
+- Restrict available packs by configuration
+
+The protocol requires only that installed packs conform to the Pack model and respect namespacing.
+
+### 14.5 Example: Sleep Regulation Pack
+
+A minimal pack that monitors sleep observations and proposes regulatory episodes.
+
+**Bundle structure:**
+
+```
+/packs/sleep
+  pack.json
+  /observation-types
+    sleep_logged.json
+  /policies
+    sleep-drift.ts
+  /actions
+    create_sleep_episode.json
+```
+
+**pack.json:**
+
+```json
+{
+  "id": "sleep",
+  "name": "Sleep Regulation",
+  "version": "1.0.0",
+  "description": "Monitor sleep patterns and propose regulatory interventions",
+  "provides": {
+    "observationTypes": ["pack:sleep:sleep_logged"],
+    "policies": ["pack:sleep:sleep-drift"],
+    "actions": ["pack:sleep:create_episode"]
+  },
+  "requires": {
+    "scopes": ["observe", "propose_action"]
+  },
+  "agentConstraints": {
+    "maxRiskLevel": "low"
+  }
+}
+```
+
+**observation-types/sleep_logged.json:**
+
+```json
+{
+  "id": "pack:sleep:sleep_logged",
+  "name": "Sleep Logged",
+  "description": "Records a sleep session",
+  "payloadSchema": {
+    "type": "object",
+    "properties": {
+      "hours": { "type": "number" },
+      "quality": { "type": "number", "minimum": 1, "maximum": 5 },
+      "wakeTime": { "type": "string", "format": "date-time" }
+    },
+    "required": ["hours"]
+  }
+}
+```
+
+**policies/sleep-drift.ts:**
+
+```ts
+// Pure policy: no side effects, deterministic
+export function evaluate(ctx: PolicyContext): Effect[] {
+  if (ctx.observation.type !== "pack:sleep:sleep_logged") {
+    return [];
+  }
+
+  const sleepVar = ctx.canon.getVariable("sleep_quality");
+  if (!sleepVar) return [];
+
+  const estimate = ctx.estimates.getVariableEstimate(sleepVar.id);
+  if (!estimate || estimate.inViableRange) return [];
+
+  // Sleep has drifted outside viable range — propose intervention
+  return [{
+    effect: "propose_action",
+    action: {
+      type: "pack:sleep:create_episode",
+      riskLevel: "low",
+      params: {
+        variableId: sleepVar.id,
+        intent: "stabilize",
+        reason: `Sleep quality at ${estimate.value}, outside viable range`
+      }
+    }
+  }];
+}
+```
+
+**actions/create_sleep_episode.json:**
+
+```json
+{
+  "id": "pack:sleep:create_episode",
+  "name": "Create Sleep Episode",
+  "description": "Creates a regulatory episode to stabilize sleep",
+  "riskLevel": "low",
+  "paramsSchema": {
+    "type": "object",
+    "properties": {
+      "variableId": { "type": "string" },
+      "intent": { "enum": ["stabilize", "increase", "decrease"] },
+      "reason": { "type": "string" }
+    },
+    "required": ["variableId", "intent"]
+  }
+}
+```
+
+This pack demonstrates the full pattern:
+1. **Observation type** defines the sensor interface
+2. **Policy** evaluates observations against variable estimates
+3. **Action** is proposed (not executed) with declared risk level
+4. **Namespacing** makes all definitions traceable to the pack
+
+The node owner's policies can suppress or modify this behavior. The pack runs subordinate to node authority.
 
 ---
 
