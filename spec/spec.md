@@ -1605,3 +1605,159 @@ This would allow interpreters to expose `getAttentionWeights()` in PolicyContext
 
 Active Inference distinguishes between acting on the world and updating beliefs about the world. The current spec focuses on action (Episodes, ActionRuns). A future version may formalize how Variables, Proxies, or ViableRanges themselves are revised in response to persistent prediction error — closing the full inference loop.
 
+---
+
+## 19) Protocol Extensions
+
+The core protocol is intentionally minimal. Extensions add capabilities without compromising the core guarantees.
+
+### 19.1 Extension Architecture
+
+Extensions follow these principles:
+
+1. **Additive:** Extensions add new types and behaviors; they don't modify core semantics
+2. **Optional:** Interpreters choose which extensions to implement
+3. **Composable:** Extensions work together when both are present
+4. **Graceful Degradation:** Systems without an extension ignore its data
+
+All extensions MUST respect the Protocol Guarantees (§0):
+- Projection Law remains inviolate
+- Canon definition extends but doesn't contradict
+- Determinism and replay must be preserved
+- Policies remain pure
+
+### 19.2 Available Extensions
+
+| Extension | Document | Purpose |
+|-----------|----------|---------|
+| **Spatial** | `spatial-extension.md` | Coordinates, territories, realms, terrain, proximity |
+| **Value** | `value-extension.md` | Lineage, commitments, capacity, metabolism |
+| **Spatial-Value Integration** | `integration-spatial-value.md` | How space and value interact |
+| **Advanced Integration** | `advanced-integration.md` | Spatial packs, governance, visualization |
+
+See `extensions-index.md` for complete documentation of all extensions.
+
+### 19.3 Extension Dependency Graph
+
+```
+                    Core Protocol
+                    (this document)
+                          │
+            ┌─────────────┼─────────────┐
+            │             │             │
+            ▼             ▼             ▼
+        Spatial        Value        (Future)
+       Extension     Extension     Extensions
+            │             │
+            └──────┬──────┘
+                   │
+                   ▼
+            Spatial-Value
+             Integration
+                   │
+                   ▼
+              Advanced
+             Integration
+```
+
+### 19.4 Extension Summary
+
+**Spatial Extension** adds geography:
+- **Realm:** Coordinate space with bounds and topology
+- **Territory:** Node's claim to a region of space
+- **Terrain:** Semantic property (plaza, garden, sanctuary, etc.)
+- **Adjacency:** Spatial relationships between territories
+- **Movement:** Travel between locations costs capacity
+
+**Value Extension** adds relational value:
+- **Lineage:** Influence chains between artifacts (you declare your ancestors)
+- **Commitments:** Canonical promises with tracked outcomes
+- **Capacity:** Regenerating resource that paces action
+- **Metabolism:** System health derived from flows
+- **Reputation:** Derived from commitment history (not tradeable)
+
+Philosophy: Value is relational and temporal, not absolute and static. Flow over stock. Influence over ownership.
+
+**Spatial-Value Integration** combines them:
+- Artifacts have birthplaces (where they were created)
+- Commitments can be place-bound (territorial scope, local witnesses)
+- Reputation varies by location (trusted here, unknown there)
+- Terrain affects metabolism (plazas energize, sanctuaries restore)
+- The Daemon becomes a landscape guide
+
+**Advanced Integration** adds governance and visualization:
+- **Spatial Packs:** Packs with location constraints, terrain-specific effects
+- **Governance:** Realm administration (governors, councils, constitutions)
+- **Disputes:** Territorial conflict resolution
+- **Map Visualization:** Layers for lineage, reputation, metabolism, governance
+
+### 19.5 Canon Extensions
+
+Extensions add to canon without contradicting it:
+
+| Extension | New Canon | New Derived |
+|-----------|-----------|-------------|
+| Spatial | Realms, Territories, Coordinates | Distance, Adjacency |
+| Value | Lineage declarations, Commitments, Capacity | Descendants, Reputation, Metabolism |
+| Integration | Spatial context on artifacts | Schools, Paths, Territorial reputation |
+| Advanced | Governance structures, Disputes | Visualizations |
+
+### 19.6 Bundle Extensions
+
+Extensions add directories to the Omnilith Bundle:
+
+```
+/omnilith-bundle
+  # Core (this spec)
+  /nodes/
+  /packs/
+  /log/
+
+  # Spatial Extension
+  /realms/
+    /<realmId>/
+      realm.json
+      /territories/
+
+  # Value Extension (within nodes)
+  /nodes/<nodeId>/
+    capacity.json
+    /commitments/
+    /artifacts/<id>/lineage.json
+
+  # Advanced Integration
+  /realms/<realmId>/
+    governance.json
+    /disputes/
+    /councils/
+```
+
+### 19.7 Daemon Extension Points
+
+The Daemon (§7.1) gains capabilities through extensions:
+
+| Extension | Daemon Capabilities |
+|-----------|---------------------|
+| Value | Lineage discovery, commitment drafting, capacity awareness, health interpretation |
+| Spatial-Value | Navigation assistance, local context briefing, place-based recommendations |
+| Advanced | Pack discovery guidance, governance awareness |
+
+The Daemon's core constraints (§7.1.7) apply to all extensions:
+- Cannot commit to canon directly
+- Cannot approve its own high-risk actions
+- All output has provenance
+
+### 19.8 Implementation Guidance
+
+Interpreters may implement extensions incrementally:
+
+1. **Core Only:** Complete, functional protocol for observations, policies, variables, episodes
+2. **+ Spatial:** Adds geography for location-aware systems
+3. **+ Value:** Adds lineage and commitments for creative/accountability systems
+4. **+ Integration:** Combines space and value for inhabited landscapes
+5. **+ Advanced:** Adds governance for communities, visualization for rich UI
+
+Each phase is independently valuable. Stop where your use case is satisfied.
+
+See `docs/implementation-plan.md` for detailed implementation phases, including extension phases.
+

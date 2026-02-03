@@ -1382,3 +1382,650 @@ Based on these concepts, consider adding to Phase 14:
 ---
 
 _These UX concepts provide a strong foundation. They're not mandatory — adapt as you build._
+
+---
+
+## Appendix C: Protocol Extensions
+
+The core protocol (Phases 0-15) is complete and functional. These extension phases add optional capabilities.
+
+**Extension Documents:**
+- `/spec/spatial-extension.md` — Coordinates, territories, realms
+- `/spec/value-extension.md` — Lineage, commitments, capacity
+- `/spec/integration-spatial-value.md` — How space and value interact
+- `/spec/advanced-integration.md` — Packs, governance, visualization
+- `/spec/extensions-index.md` — Overview and navigation
+
+**Dependency Graph:**
+```
+Core Protocol (Phases 0-15)
+        │
+        ├─── Phase E1: Spatial Extension
+        │
+        ├─── Phase E2: Value Extension
+        │
+        └─── Phase E3: Spatial-Value Integration (requires E1 + E2)
+                │
+                └─── Phase E4: Advanced Integration (requires E3)
+```
+
+---
+
+## Phase E1: Spatial Extension
+
+_Add geography to the protocol._
+
+### E1.1 — Realm and Territory Types
+
+**What this is:** Type definitions for spatial concepts.
+
+**Depends on:** Phase 0 (Core Types)
+
+**Sub-tasks:**
+
+- [ ] Define `Realm` type (id, bounds, topology, scarcity, governor)
+- [ ] Define `Coordinates` type (x, y, z optional)
+- [ ] Define `Territory` type (id, realmId, nodeId, anchor, shape, terrain)
+- [ ] Define `TerritoryShape` variants (point, circle, rectangle, polygon)
+- [ ] Define `AdjacencyType` enum (bordering, nearby, visible, connected)
+- [ ] Add spatial fields to Node type (optional coordinates, realm memberships)
+- [ ] Write type tests
+
+**Plain English:** Before we can track where things are, we need to define what "where" means. Realms are worlds. Territories are claimed regions. Coordinates locate things in space.
+
+---
+
+### E1.2 — Spatial Repository Interfaces
+
+**What this is:** Repository interfaces for spatial data.
+
+**Depends on:** E1.1, Phase 1.1
+
+**Sub-tasks:**
+
+- [ ] Define `RealmRepository` interface (create, get, list, update)
+- [ ] Define `TerritoryRepository` interface (create, get, list by realm/node, update, delete)
+- [ ] Define spatial query methods:
+  - `getTerritoriesInRadius(realmId, center, radius)`
+  - `getAdjacentTerritories(territoryId, adjacencyType)`
+  - `getTerritoryAt(realmId, coordinates)`
+- [ ] Define `calculateDistance(realmId, pointA, pointB)` for topology-aware distance
+- [ ] Write interface tests
+
+**Plain English:** These contracts define what spatial queries the system can answer: "what territories are nearby?", "who are my neighbors?", "how far is that?"
+
+---
+
+### E1.3 — Postgres Spatial Implementation
+
+**What this is:** Concrete implementations using Postgres + PostGIS.
+
+**Depends on:** E1.2, Phase 1.2
+
+**Sub-tasks:**
+
+- [ ] Add PostGIS extension to database
+- [ ] Design schema: `realms` table
+- [ ] Design schema: `territories` table with geometry columns
+- [ ] Implement spatial indexes for efficient queries
+- [ ] Implement all repository interface methods
+- [ ] Implement distance calculation with topology awareness (euclidean, toroidal)
+- [ ] Write integration tests
+
+**Plain English:** Now the actual database work — using PostGIS for efficient spatial queries. "Find all territories within 500 units" becomes a fast indexed query.
+
+---
+
+### E1.4 — Spatial Actions
+
+**What this is:** Actions for territorial operations.
+
+**Depends on:** E1.3, Phase 3.2
+
+**Sub-tasks:**
+
+- [ ] Implement `spatial:claim_territory` action
+  - Validate unclaimed space
+  - Validate within realm bounds
+  - Validate no overlap with existing territories
+  - Create territory record
+- [ ] Implement `spatial:transfer_territory` action
+  - Validate ownership
+  - Validate recipient eligibility
+  - Update territory ownership
+  - Record consideration (audit only)
+- [ ] Implement `spatial:resize_territory` action
+  - Validate no overlap
+  - Update shape/anchor
+- [ ] Implement `spatial:abandon_territory` action
+  - Mark territory unclaimed
+  - Trigger realm policy (if any)
+- [ ] Register actions with ActionRegistry
+- [ ] Write action tests
+
+**Plain English:** How do you claim land? Transfer it? Resize it? These actions handle all territorial operations with proper validation.
+
+---
+
+### E1.5 — Spatial PolicyContext Extensions
+
+**What this is:** Make spatial queries available to policies.
+
+**Depends on:** E1.3, Phase 2.2
+
+**Sub-tasks:**
+
+- [ ] Add `canon.getTerritoriesInRadius()` to PolicyContext
+- [ ] Add `canon.getAdjacentTerritories()` to PolicyContext
+- [ ] Add `canon.getDistance()` to PolicyContext
+- [ ] Add `canon.getTerritoryAt()` to PolicyContext
+- [ ] Add `canon.getTerritoryByNode()` to PolicyContext
+- [ ] Ensure all spatial queries are read-only
+- [ ] Write policy tests using spatial queries
+
+**Plain English:** Policies can now ask spatial questions: "is this observation from a neighboring territory?" "How far away is that node?"
+
+---
+
+### E1.6 — Spatial Bundle Extension
+
+**What this is:** Add spatial data to export/import.
+
+**Depends on:** E1.3, Phase 1.3
+
+**Sub-tasks:**
+
+- [ ] Define `/realms/<realmId>/realm.json` format
+- [ ] Define `/realms/<realmId>/territories/<id>.json` format
+- [ ] Define `/nodes/<nodeId>/spatial.json` format
+- [ ] Extend `exportBundle()` to include spatial data
+- [ ] Extend `importBundle()` to load spatial data
+- [ ] Write round-trip tests for spatial data
+
+**Plain English:** Spatial data is part of canon, so it needs to export and import with everything else.
+
+---
+
+## Phase E2: Value Extension
+
+_Add lineage, commitments, and capacity._
+
+### E2.1 — Lineage Types
+
+**What this is:** Type definitions for lineage (influence chains).
+
+**Depends on:** Phase 0
+
+**Sub-tasks:**
+
+- [ ] Define `Lineage` type (artifactId, ancestors)
+- [ ] Define `AncestorLink` type (artifactId, nodeId, relationship, weight, note)
+- [ ] Define `LineageRelationship` enum (derived_from, inspired_by, responds_to, remixes, cites, contradicts)
+- [ ] Define `InfluenceMetrics` derived type (descendantCount, reach, momentum)
+- [ ] Add optional `lineage` field to Artifact type
+- [ ] Write type tests
+
+**Plain English:** Lineage tracks what influenced what. An artifact can declare its ancestors — what it was inspired by, what it responds to, etc.
+
+---
+
+### E2.2 — Commitment Types
+
+**What this is:** Type definitions for commitments (trackable promises).
+
+**Depends on:** Phase 0
+
+**Sub-tasks:**
+
+- [ ] Define `Commitment` type (id, nodeId, title, statement, targets, deadline, status)
+- [ ] Define `CommitmentTarget` type (variableId, intent, threshold)
+- [ ] Define `CommitmentStatus` enum (draft, active, fulfilled, broken, released, expired)
+- [ ] Define `CommitmentResolution` type (status, evidence, witnessConfirmations)
+- [ ] Define `ReputationMetrics` derived type (fulfillmentRate, streak, trend)
+- [ ] Write type tests
+
+**Plain English:** A commitment is a promise you can track. "I commit to writing daily for 30 days." It has a status, evidence, and witnesses.
+
+---
+
+### E2.3 — Capacity Types
+
+**What this is:** Type definitions for capacity (regenerating resource).
+
+**Depends on:** Phase 0
+
+**Sub-tasks:**
+
+- [ ] Define `Capacity` type (nodeId, current, max, regenRate, modifiers)
+- [ ] Define `CapacityModifier` type (source, effect, expiresAt)
+- [ ] Define capacity cost field on ActionDefinition
+- [ ] Write type tests
+
+**Plain English:** Capacity is energy that regenerates. Actions cost capacity. You can't do infinite things — pacing is built in.
+
+---
+
+### E2.4 — Metabolism Types
+
+**What this is:** Type definitions for metabolic health.
+
+**Depends on:** E2.1, E2.2, E2.3
+
+**Sub-tasks:**
+
+- [ ] Define `MetabolicMetrics` derived type (observationFlow, artifactActivity, commitmentActivity, health)
+- [ ] Define `MetabolicHealth` enum (thriving, active, quiet, stagnant, depleted)
+- [ ] Write type tests
+
+**Plain English:** Metabolism is the big picture — how healthy is the whole system? Are things flowing or stuck?
+
+---
+
+### E2.5 — Lineage Repository
+
+**What this is:** Storage for lineage data.
+
+**Depends on:** E2.1, Phase 1.1
+
+**Sub-tasks:**
+
+- [ ] Define `LineageRepository` interface
+  - `declareAncestor(artifactId, ancestor: AncestorLink)`
+  - `getLineage(artifactId): Lineage`
+  - `getDescendants(artifactId, options): ArtifactReference[]`
+  - `getInfluenceMetrics(artifactId): InfluenceMetrics`
+- [ ] Implement Postgres version
+- [ ] Write tests
+
+**Plain English:** Where do we store who influenced whom? And how do we efficiently query descendants?
+
+---
+
+### E2.6 — Commitment Repository
+
+**What this is:** Storage for commitments.
+
+**Depends on:** E2.2, Phase 1.1
+
+**Sub-tasks:**
+
+- [ ] Define `CommitmentRepository` interface
+  - `create(commitment)`
+  - `get(id)`
+  - `update(id, updates)`
+  - `listByNode(nodeId, status?)`
+  - `listByWitness(nodeId)`
+  - `resolve(id, resolution)`
+- [ ] Implement Postgres version
+- [ ] Write tests
+
+**Plain English:** Commitments need to be stored, queried, and resolved. This handles all of that.
+
+---
+
+### E2.7 — Capacity Repository
+
+**What this is:** Storage for capacity state.
+
+**Depends on:** E2.3, Phase 1.1
+
+**Sub-tasks:**
+
+- [ ] Define `CapacityRepository` interface
+  - `get(nodeId): Capacity`
+  - `update(nodeId, updates)`
+  - `addModifier(nodeId, modifier)`
+  - `removeModifier(nodeId, modifierId)`
+- [ ] Implement Postgres version
+- [ ] Implement regeneration calculation (time-based)
+- [ ] Write tests
+
+**Plain English:** Capacity regenerates over time. The repository tracks current state and modifiers, and calculates current capacity on read.
+
+---
+
+### E2.8 — Commitment Actions
+
+**What this is:** Actions for commitment lifecycle.
+
+**Depends on:** E2.6, Phase 3.2
+
+**Sub-tasks:**
+
+- [ ] Implement `commitment:create` action (creates draft)
+- [ ] Implement `commitment:activate` action (draft → active, medium risk)
+- [ ] Implement `commitment:resolve` action (mark fulfilled/broken/released)
+- [ ] Implement `commitment:attest` action (witness confirmation)
+- [ ] Integrate capacity: activation costs capacity
+- [ ] Register with ActionRegistry
+- [ ] Write action tests
+
+**Plain English:** How do you make a commitment? Activate it? Mark it done? These actions handle the lifecycle.
+
+---
+
+### E2.9 — Derived Metrics Calculators
+
+**What this is:** Calculate derived metrics from canon.
+
+**Depends on:** E2.5, E2.6, E2.7
+
+**Sub-tasks:**
+
+- [ ] Implement `calculateInfluenceMetrics(artifactId)` — descendant count, reach, momentum
+- [ ] Implement `calculateReputationMetrics(nodeId)` — fulfillment rate, streak, trend
+- [ ] Implement `calculateMetabolicMetrics(nodeId, window)` — flows, health
+- [ ] Ensure all calculations are deterministic
+- [ ] Write calculation tests
+
+**Plain English:** These metrics aren't stored — they're computed from canon. Same inputs always produce same outputs.
+
+---
+
+### E2.10 — Value PolicyContext Extensions
+
+**What this is:** Make value queries available to policies.
+
+**Depends on:** E2.9, Phase 2.2
+
+**Sub-tasks:**
+
+- [ ] Add `canon.getLineage(artifactId)` to PolicyContext
+- [ ] Add `canon.getActiveCommitments(nodeId)` to PolicyContext
+- [ ] Add `canon.getCommitment(id)` to PolicyContext
+- [ ] Add `derived.getInfluenceMetrics(artifactId)` to PolicyContext
+- [ ] Add `derived.getReputationMetrics(nodeId)` to PolicyContext
+- [ ] Add `derived.getMetabolicMetrics(nodeId, window)` to PolicyContext
+- [ ] Add `derived.getCurrentCapacity(nodeId)` to PolicyContext
+- [ ] Write policy tests
+
+**Plain English:** Policies can now ask value questions: "what's my fulfillment rate?", "is this artifact influential?", "how's my metabolic health?"
+
+---
+
+### E2.11 — Daemon Value Integration
+
+**What this is:** Extend Daemon with value awareness.
+
+**Depends on:** E2.10, Phase 7.1 (Daemon)
+
+**Sub-tasks:**
+
+- [ ] Add lineage discovery suggestions to Daemon
+- [ ] Add commitment drafting assistance
+- [ ] Add deadline reminders and at-risk warnings
+- [ ] Add capacity awareness (hold suggestions when low)
+- [ ] Add metabolic health interpretation
+- [ ] Add recovery episode proposals
+- [ ] Write Daemon integration tests
+
+**Plain English:** The Daemon becomes value-aware — suggesting lineage, helping with commitments, interpreting health.
+
+---
+
+### E2.12 — Value Bundle Extension
+
+**What this is:** Add value data to export/import.
+
+**Depends on:** E2.6, E2.7, Phase 1.3
+
+**Sub-tasks:**
+
+- [ ] Define `/nodes/<nodeId>/artifacts/<id>/lineage.json` format
+- [ ] Define `/nodes/<nodeId>/commitments/<id>.json` format
+- [ ] Define `/nodes/<nodeId>/capacity.json` format
+- [ ] Extend `exportBundle()` to include value data
+- [ ] Extend `importBundle()` to load value data
+- [ ] Write round-trip tests
+
+**Plain English:** Value data (lineage, commitments, capacity) exports and imports with everything else.
+
+---
+
+## Phase E3: Spatial-Value Integration
+
+_Combine space and value into an inhabited landscape._
+
+**Depends on:** E1 (Spatial) + E2 (Value) complete
+
+### E3.1 — Artifact Spatial Context
+
+**What this is:** Track where artifacts were created.
+
+**Depends on:** E1, E2
+
+**Sub-tasks:**
+
+- [ ] Define `ArtifactSpatialContext` type (birthplace, residence)
+- [ ] Add spatial context capture on artifact creation
+- [ ] Add residence update action
+- [ ] Extend lineage queries with spatial dimension
+- [ ] Write tests
+
+**Plain English:** Every artifact remembers where it was born. Lineage threads now have spatial coordinates.
+
+---
+
+### E3.2 — Place-Bound Commitments
+
+**What this is:** Commitments tied to locations.
+
+**Depends on:** E1, E2
+
+**Sub-tasks:**
+
+- [ ] Extend Commitment type with spatial scope (global, territorial, local)
+- [ ] Implement neighbor witness discovery
+- [ ] Implement witness proximity requirements
+- [ ] Implement pilgrimage commitments (waypoint-based)
+- [ ] Write tests
+
+**Plain English:** A commitment can be local — only counts if done in this territory, witnessed by neighbors.
+
+---
+
+### E3.3 — Territorial Reputation
+
+**What this is:** Reputation that varies by location.
+
+**Depends on:** E1, E2
+
+**Sub-tasks:**
+
+- [ ] Extend ReputationMetrics with territorial breakdown
+- [ ] Implement local reputation calculation
+- [ ] Implement reputation-gated grants
+- [ ] Write tests
+
+**Plain English:** Your reputation varies by place. Trusted in your neighborhood, unknown across the realm.
+
+---
+
+### E3.4 — Spatial Metabolism
+
+**What this is:** Territory health and terrain effects.
+
+**Depends on:** E1, E2
+
+**Sub-tasks:**
+
+- [ ] Implement `TerritoryMetabolism` calculation
+- [ ] Implement terrain effects on personal metabolism
+- [ ] Implement movement capacity cost
+- [ ] Add movement event logging
+- [ ] Write tests
+
+**Plain English:** Territories have health. Terrain affects your state. Travel costs energy.
+
+---
+
+### E3.5 — Daemon Landscape Guide
+
+**What this is:** Daemon becomes spatially aware.
+
+**Depends on:** E3.1-E3.4
+
+**Sub-tasks:**
+
+- [ ] Add spatial context to Daemon (current location, path history)
+- [ ] Implement navigation assistance
+- [ ] Implement local context briefing on territory entry
+- [ ] Implement place-based recommendations
+- [ ] Implement spatial-value pattern recognition
+- [ ] Write tests
+
+**Plain English:** The Daemon knows where you are and helps you navigate — suggesting destinations, briefing you on local context.
+
+---
+
+## Phase E4: Advanced Integration
+
+_Add governance and rich visualization._
+
+**Depends on:** E3 complete
+
+### E4.1 — Spatial Packs
+
+**What this is:** Packs with location constraints.
+
+**Depends on:** E3, Phase 11
+
+**Sub-tasks:**
+
+- [ ] Extend Pack type with spatial binding
+- [ ] Implement pack discovery at locations
+- [ ] Implement terrain-specific pack activation
+- [ ] Implement reputation-gated pack installation
+- [ ] Write tests
+
+**Plain English:** Some packs only work in certain places. Some must be discovered. Local knowledge that doesn't travel.
+
+---
+
+### E4.2 — Governance Types
+
+**What this is:** Type definitions for governance.
+
+**Depends on:** E1
+
+**Sub-tasks:**
+
+- [ ] Define `RealmGovernance` type (model, governor, council, constitution)
+- [ ] Define `GovernanceModel` enum (founder, governor, council, constitutional, emergent, anarchic)
+- [ ] Define `GovernorPowers` type
+- [ ] Define `Council` type
+- [ ] Define `Proposal` type
+- [ ] Define `Election` type
+- [ ] Write type tests
+
+**Plain English:** How are realms governed? Founder dictatorship? Council? Constitution? These types define the options.
+
+---
+
+### E4.3 — Dispute Resolution
+
+**What this is:** Handle territorial conflicts.
+
+**Depends on:** E4.2
+
+**Sub-tasks:**
+
+- [ ] Define `TerritorialDispute` type
+- [ ] Define `DisputeType` enum (boundary, abandonment, encroachment, etc.)
+- [ ] Implement dispute filing action
+- [ ] Implement evidence submission
+- [ ] Implement arbitration process
+- [ ] Implement dispute resolution action
+- [ ] Write tests
+
+**Plain English:** What happens when territories conflict? Dispute resolution handles claims, evidence, arbitration.
+
+---
+
+### E4.4 — Council Operations
+
+**What this is:** Multi-member governance.
+
+**Depends on:** E4.2
+
+**Sub-tasks:**
+
+- [ ] Implement council membership management
+- [ ] Implement proposal submission
+- [ ] Implement voting system
+- [ ] Implement election system
+- [ ] Write tests
+
+**Plain English:** Councils vote on proposals. Members have terms. Elections happen. Democracy mechanics.
+
+---
+
+### E4.5 — Map Visualization Layers
+
+**What this is:** Rich map rendering.
+
+**Depends on:** E3
+
+**Sub-tasks:**
+
+- [ ] Implement base geography layer (territories, terrain)
+- [ ] Implement lineage layer (threads between artifacts)
+- [ ] Implement reputation layer (trust heatmap)
+- [ ] Implement commitment layer (beacons, tethers)
+- [ ] Implement metabolism layer (auras, particle flow)
+- [ ] Implement governance layer (borders, disputes)
+- [ ] Implement layer controls and presets
+- [ ] Write rendering tests
+
+**Plain English:** The map shows everything — lineage threads, reputation heatmaps, commitment beacons. Toggle layers to see different views.
+
+---
+
+### E4.6 — Journey System
+
+**What this is:** Travel visualization and mechanics.
+
+**Depends on:** E4.5
+
+**Sub-tasks:**
+
+- [ ] Implement route planning
+- [ ] Implement journey animation
+- [ ] Implement territory entry notifications
+- [ ] Implement Daemon journey guidance
+- [ ] Write tests
+
+**Plain English:** When you travel, it's visible — route appears, you move across the landscape, Daemon briefs you on arrival.
+
+---
+
+### E4.7 — Daemon Governance Awareness
+
+**What this is:** Daemon understands governance.
+
+**Depends on:** E4.4
+
+**Sub-tasks:**
+
+- [ ] Add governance context to Daemon
+- [ ] Implement election notifications
+- [ ] Implement proposal explanations
+- [ ] Implement dispute guidance
+- [ ] Write tests
+
+**Plain English:** The Daemon knows about governance — when elections happen, what proposals mean, how to navigate disputes.
+
+---
+
+## Extension Implementation Order
+
+For solo development, after completing core phases (0-15):
+
+1. **E1.1-E1.2** — Spatial types and interfaces
+2. **E2.1-E2.4** — Value types
+3. **E1.3-E1.6** — Spatial implementation
+4. **E2.5-E2.12** — Value implementation
+5. **E3** — Spatial-Value integration
+6. **E4** — Advanced features (governance, visualization)
+
+This order builds capability progressively. You can stop at any point and have a functional extension.
