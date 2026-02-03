@@ -388,6 +388,141 @@ Prism is a persistent overlay that provides:
 
 Prism is the **only interface that mutates canon**.
 
+### 7.1 Daemon (Embedded AI Assistant)
+
+The **Daemon** is a personal Agent-Node embedded in each user's Prism. It observes, advises, and drafts — but never commits without the user.
+
+#### 7.1.1 Core Principle
+
+The Daemon is **always present, mostly quiet**. It watches the user's context, maintains working memory of recent activity, and surfaces when:
+- The user invokes it
+- Something warrants attention (deviation, pending actions, patterns)
+- The user is authoring and could benefit from assistance
+
+It never interrupts flow. It offers; the user accepts, modifies, or dismisses.
+
+#### 7.1.2 Interaction Modes
+
+**Invoked Mode (User-initiated)**
+
+The user explicitly summons the Daemon via icon or hotkey for tasks like:
+- "Draft an artifact about X"
+- "Summarize recent observations for Variable Y"
+- "What's driving the deviation in Z?"
+- "Help me write a policy that does X when Y"
+- "What actions are pending approval?"
+
+Output appears in a **staging area** — not yet canon, clearly marked as Daemon-authored.
+
+**Ambient Mode (Daemon-initiated, passive)**
+
+The Daemon surfaces small indicators without interrupting:
+- Subtle `◇` glyph indicates Daemon has context
+- Hover or click expands the Daemon's observation
+- Never modal, never blocking
+- Frequency is tunable by user preference
+
+**Authoring Mode (Co-presence during editing)**
+
+When editing artifacts, the Daemon can offer inline assistance:
+- Watches cursor position and recent typing
+- Offers relevant context from observations/variables
+- Can draft continuations, but user must accept
+- Inserted text is marked with provenance until user edits it
+
+**Review Mode (ActionRun approval assistance)**
+
+When reviewing pending ActionRuns, the Daemon explains and contextualizes:
+- Why the policy triggered
+- What the action will do if approved
+- Historical context (similar past actions and outcomes)
+- Optional recommendation (user makes final call)
+
+#### 7.1.3 Delegation Model
+
+Each Daemon is an Agent-Node with constrained delegation:
+
+```ts
+export type DaemonDelegation = {
+  agentNodeId: string;           // e.g., "daemon:user-123"
+  sponsorNodeId: string;         // The user's Subject-Node
+  grantedAt: string;
+  scopes: [
+    "observe",                   // Read observations
+    "query_canon",               // Read artifacts, variables, episodes
+    "draft_artifact",            // Propose content (not commit)
+    "propose_action",            // Suggest actions for approval
+    "explain",                   // Generate explanations
+  ];
+  constraints: {
+    maxRiskLevel: "low";         // Can only auto-execute low-risk
+    allowedEffects: ["log", "tag_observation"];  // Minimal autonomous effects
+  };
+};
+```
+
+**Key constraint:** The Daemon can *draft* and *propose*, but committing to canon requires user action through Prism's normal commit flow.
+
+#### 7.1.4 Provenance
+
+Everything the Daemon produces carries provenance:
+
+```ts
+// Daemon-drafted content
+{
+  provenance: {
+    sourceId: "daemon:user-123",
+    sponsorId: "user-123",
+    method: "daemon_draft",
+    confidence: number;          // 0-1, model's confidence
+  }
+}
+```
+
+Once the user edits or explicitly approves, provenance updates:
+
+```ts
+{
+  provenance: {
+    sourceId: "user-123",
+    method: "manual_entry",
+    assistedBy?: string;         // "daemon:user-123" if AI-assisted
+  }
+}
+```
+
+The `assistedBy` field tracks AI involvement in human-committed content.
+
+#### 7.1.5 Presence Levels
+
+Users control how present the Daemon is:
+
+| Level | Behavior |
+|-------|----------|
+| **Quiet** | Only responds when invoked. No ambient indicators. |
+| **Attentive** | Shows indicators when it has relevant context. Offers during authoring. |
+| **Proactive** | Actively surfaces patterns, suggests drafts, nudges on deviations. |
+
+Default: **Attentive**
+
+#### 7.1.6 UI Components
+
+| Component | Purpose |
+|-----------|---------|
+| **Daemon Icon** `◇` | Invoke conversational mode, shows activity state |
+| **Daemon Chip** | Inline indicator that Daemon has relevant context |
+| **Staging Area** | Holds Daemon drafts before user commits |
+| **Provenance Badge** | Shows `◇ Daemon draft` until user edits/commits |
+| **Daemon Drawer** | Slide-out panel for full conversational interface |
+
+#### 7.1.7 Invariants
+
+- Daemon CANNOT commit to canon directly — all mutations flow through Prism's normal commit boundary
+- Daemon CANNOT approve its own proposed actions above `low` risk
+- Daemon CANNOT modify its own delegation
+- All Daemon output MUST have provenance
+- Daemon respects the Projection Law — it reads canon, never introduces state
+
 ---
 
 ## 8) Observations (Event Log)
@@ -405,15 +540,17 @@ export type Observation = {
 export type Provenance = {
   sourceId: string;              // Subject‑Node or Agent‑Node ID
   sponsorId?: string;            // For agents: the delegating Subject‑Node
-  method?: string;               // e.g., "manual_entry", "sensor_ingest", "agent_inference"
+  method?: string;               // e.g., "manual_entry", "sensor_ingest", "agent_inference", "daemon_draft"
   confidence?: number;           // 0-1, for agent-generated observations
+  assistedBy?: string;           // Agent-Node ID if AI-assisted (e.g., "daemon:user-123")
 };
 ```
 
 **Provenance Rules:**
 - All observations MUST have provenance.
-- `method` describes how the observation was created (e.g., "manual_entry", "sensor_ingest", "agent_inference").
+- `method` describes how the observation was created (e.g., "manual_entry", "sensor_ingest", "agent_inference", "daemon_draft").
 - `confidence` indicates reliability for agent-generated observations.
+- `assistedBy` tracks AI involvement when a human commits AI-assisted content.
 - Provenance is immutable once recorded.
 - Policies MAY filter or weight observations by provenance.
 
@@ -1095,7 +1232,118 @@ function SurfaceRenderer({ surface }: { surface: Surface }) {
 
 Each Surface component receives canon data and projects it. Surfaces NEVER mutate canon directly.
 
-### 16.2 Design Tokens
+### 16.2 Design Philosophy: Alive & Alien
+
+Prism should feel like a living system — aware, metabolic, unhurried. The visual language makes abstract protocol concepts legible through intuition, not just numbers.
+
+#### 16.2.1 Core Aesthetic Principles
+
+**Bioluminescent, not neon.** Light comes from within, not projected onto surfaces. Things glow because they're metabolically active, not because they're highlighted.
+
+**Precise but organic.** Geometry that feels grown rather than designed. Perfect circles that breathe. Lines that know where they're going but take living paths.
+
+**Aware, not reactive.** The UI doesn't just respond to input — it seems to *notice* you. Subtle shifts when you hover. Things that were waiting for your attention.
+
+**Unhurried.** Nothing snaps or pops. Things emerge, settle, recede. The system has its own sense of time.
+
+#### 16.2.2 Variables as Organisms
+
+Variables are displayed as circles that exhibit living qualities:
+
+**Breathing:** Circle size fluctuates with `VariableEstimate.deviation`. Variables at rest (near preferred center) are small; troubled ones loom larger. This creates a "breathing" quality where attention naturally flows to what needs it.
+
+**Drift:** Circles are never perfectly still — micro-movements like cells under a microscope.
+
+**Color encodes range status:**
+
+| State | Color |
+|-------|-------|
+| In preferred range | Calm (teal/cyan) |
+| In viable, not preferred | Neutral (dim white) |
+| Approaching boundary | Warming (amber) |
+| Outside viable range | Alert (coral/red) |
+
+**Metabolism:** Variables with recent observations have visible activity inside them — particles circulating, inner luminescence.
+
+**Filaments:** Related variables (same episode, correlated history, policy-derived relationships) connect via faint threads that pulse when data flows between them.
+
+**Awareness:** When you focus on one variable, nearby variables subtly orient toward it (or away, if unrelated).
+
+#### 16.2.3 Observations as Signal
+
+New observations don't just appear in a list. They arrive:
+
+- **Particles flowing inward** from the edges toward the relevant Variable
+- **Absorption** — the Variable's circle briefly luminesces as it integrates the new data
+- **Ripples** — if the observation causes deviation to change, a wave propagates outward
+
+The system visibly *metabolizes* information, not just stores it.
+
+#### 16.2.4 Daemon Presence
+
+The Daemon is not a chat bubble or avatar. It's a **quality of attention** in the space:
+
+| State | Manifestation |
+|-------|---------------|
+| **Quiescent** | Faint shimmer at the edge of perception. You know something's there. |
+| **Attentive** | The `◇` glyph has an inner light that subtly tracks activity. Like an eye that doesn't blink but clearly sees. |
+| **Speaking** | Text doesn't appear — it **crystallizes**. Characters resolve from noise, like a signal locking in. |
+| **Thinking** | The space itself seems to hold its breath. A subtle contraction. |
+
+The Daemon should feel like a presence you're sharing the space with, not a tool you're using.
+
+#### 16.2.5 Episodes as Weather
+
+Active Episodes create ambient atmospheric shifts rather than container UI:
+
+- **Regulatory episode:** Subtle pressure, like the system is working. Background tone shifts cooler.
+- **Exploratory episode:** Expansiveness. More space between elements. Things feel more possible.
+
+The Episode isn't a box — it's a *condition* the whole Prism exists within.
+
+#### 16.2.6 Map as Living Space
+
+Nodes aren't static icons on a canvas:
+
+- **Nodes pulse** with their own rhythm based on activity level
+- **Edges breathe** — thickness fluctuates with recent traffic
+- **The space between** has texture — not empty black, but a deep field with subtle depth
+- **Your current node** has gravity — other nodes orient toward it slightly
+- **Approaching a node** (zooming in) causes it to unfold, revealing its surfaces like petals
+
+#### 16.2.7 State Transitions
+
+Nothing teleports. Everything has a journey:
+
+- **Opening Prism:** It doesn't slide in — it *emerges*. Opacity and blur resolve together. The system wakes up.
+- **Switching views:** Content doesn't swap — it morphs. The old view recedes into abstraction while the new one crystallizes.
+- **Committing changes:** A pulse of coherence. Everything briefly aligns, then relaxes into the new state.
+
+#### 16.2.8 Intuitive Legibility
+
+The visual language makes protocol concepts felt, not just read:
+
+| Concept | Made Visible Through |
+|---------|---------------------|
+| Deviation from viability | Size, color, tension |
+| Recent activity | Movement, luminescence |
+| Variable relationships | Filaments, proximity |
+| Daemon attention | Quality of presence |
+| Episode context | Atmospheric condition |
+| System health | Overall coherence/harmony |
+
+The user shouldn't need to read numbers to know how they're doing. They should *feel* it.
+
+#### 16.2.9 Reference Points
+
+Visual influences (to triangulate, not copy):
+- Organism visualizations in *Annihilation* (the shimmer)
+- The heptapod language interface in *Arrival*
+- Deep sea bioluminescence
+- Electron microscopy footage
+- Soft alien tech in *Blade Runner 2049*
+
+### 16.3 Design Tokens
 
 To maintain visual consistency and enable theming, the interpreter uses CSS custom properties as design tokens.
 
@@ -1156,7 +1404,7 @@ Each component has a co-located `.module.css` file that imports tokens:
   Map.module.css
 ```
 
-### 16.3 Repository Interfaces
+### 16.4 Repository Interfaces
 
 To preserve substrate independence (§0.4), all data access is mediated by repository interfaces. The web interpreter implements these for Postgres, but the same interfaces could back IndexedDB or filesystem implementations.
 
@@ -1198,7 +1446,7 @@ export const artifactRepo: ArtifactRepository = new PostgresArtifactRepository()
 
 This allows swapping implementations without changing component code.
 
-### 16.4 Module Structure
+### 16.5 Module Structure
 
 Recommended directory structure for the web interpreter:
 
@@ -1257,7 +1505,7 @@ src/
         └── page.tsx
 ```
 
-### 16.5 Hooks as Behavior Extraction
+### 16.6 Hooks as Behavior Extraction
 
 Complex interaction logic is extracted into hooks, keeping components focused on rendering:
 
