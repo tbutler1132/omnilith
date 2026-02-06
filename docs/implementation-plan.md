@@ -1390,6 +1390,7 @@ _These UX concepts provide a strong foundation. They're not mandatory — adapt 
 The core protocol (Phases 0-15) is complete and functional. These extension phases add optional capabilities.
 
 **Extension Documents:**
+- `/spec/federation-extension.md` — Local/global consensus, cryptographic identity, anchoring
 - `/spec/spatial-extension.md` — Coordinates, territories, realms
 - `/spec/value-extension.md` — Lineage, commitments, capacity
 - `/spec/integration-spatial-value.md` — How space and value interact
@@ -1400,14 +1401,167 @@ The core protocol (Phases 0-15) is complete and functional. These extension phas
 ```
 Core Protocol (Phases 0-15)
         │
-        ├─── Phase E1: Spatial Extension
+        ├─── Phase F: Federation Extension (enables multi-node)
+        │
+        ├─── Phase E1: Spatial Extension (uses Federation for shared Realms)
         │
         ├─── Phase E2: Value Extension
         │
         └─── Phase E3: Spatial-Value Integration (requires E1 + E2)
                 │
-                └─── Phase E4: Advanced Integration (requires E3)
+                └─── Phase E4: Advanced Integration (requires E3, uses Federation for governance)
 ```
+
+---
+
+## Phase F: Federation Extension
+
+_Add consensus and verifiable identity for multi-node operation._
+
+### F.1 — Cryptographic Identity Types
+
+**What this is:** Type definitions for verifiable node identity.
+
+**Depends on:** Phase 0 (Core Types)
+
+**Sub-tasks:**
+
+- [ ] Define `NodeIdentity` type (method, publicKey, keyAlgorithm, did, domain)
+- [ ] Define `FederatedNode` extension to Node type
+- [ ] Define `SignedObservation` and `SignedArtifact` types
+- [ ] Define signature verification utilities
+- [ ] Write type tests
+
+**Plain English:** Before nodes can interact trustlessly, they need verifiable identity. Public keys let anyone verify "this node signed this data."
+
+---
+
+### F.2 — Anchoring Types
+
+**What this is:** Type definitions for committing local canon to global consensus.
+
+**Depends on:** F.1
+
+**Sub-tasks:**
+
+- [ ] Define `AnchorRecord` type (localId, itemType, contentHash, proof)
+- [ ] Define `AnchorAction` and `VerifyAnchorAction` types
+- [ ] Define `ConsensusConfig` types for different mechanisms (trusted, witnesses, blockchain)
+- [ ] Write type tests
+
+**Plain English:** Anchoring is how you say "this artifact exists, and here's the proof." The anchor record tracks what was anchored, when, and where the proof lives.
+
+---
+
+### F.3 — Key Management
+
+**What this is:** Generate, store, and use cryptographic keys.
+
+**Depends on:** F.1
+
+**Sub-tasks:**
+
+- [ ] Implement keypair generation (ed25519 recommended)
+- [ ] Implement secure key storage interface
+- [ ] Implement node ID derivation from public key
+- [ ] Implement signing function
+- [ ] Implement signature verification function
+- [ ] Write security tests
+
+**Plain English:** Every federated node needs a keypair. The public key becomes the node's identity. The private key must be kept secure — it's how the node proves ownership.
+
+---
+
+### F.4 — Anchor Repository
+
+**What this is:** Storage for anchor records.
+
+**Depends on:** F.2, Phase 1.1
+
+**Sub-tasks:**
+
+- [ ] Define `AnchorRepository` interface (create, get, list by item, verify)
+- [ ] Implement Postgres version
+- [ ] Implement anchor log (append-only NDJSON)
+- [ ] Write tests
+
+**Plain English:** Anchor records need to be stored and queryable. "What have I anchored?" "Is this artifact anchored?"
+
+---
+
+### F.5 — Consensus Mechanism Interface
+
+**What this is:** Abstract interface for consensus backends.
+
+**Depends on:** F.2
+
+**Sub-tasks:**
+
+- [ ] Define `ConsensusMechanism` interface (anchor, verify, getProof)
+- [ ] Implement `TrustedInterpreterConsensus` (simplest: just the local server)
+- [ ] Stub interfaces for `FederatedWitnessConsensus` and `BlockchainConsensus`
+- [ ] Write tests
+
+**Plain English:** Different consensus mechanisms (trusted server, witnesses, blockchain) should implement the same interface. Start with trusted interpreter — it's just "the server says so."
+
+---
+
+### F.6 — Anchor Actions
+
+**What this is:** Actions to anchor items and verify anchors.
+
+**Depends on:** F.4, F.5, Phase 3.2
+
+**Sub-tasks:**
+
+- [ ] Implement `federation:anchor` action
+  - Compute canonical hash
+  - Submit to consensus mechanism
+  - Store anchor record
+- [ ] Implement `federation:verify_anchor` action
+  - Retrieve proof from consensus
+  - Verify hash matches
+- [ ] Register with ActionRegistry
+- [ ] Write action tests
+
+**Plain English:** The anchor action takes local content, hashes it, submits to the consensus network, and saves the proof. Verify checks that the proof is still valid.
+
+---
+
+### F.7 — Federation Bundle Extension
+
+**What this is:** Add federation data to export/import.
+
+**Depends on:** F.4, Phase 1.3
+
+**Sub-tasks:**
+
+- [ ] Define `/nodes/<nodeId>/identity.json` format
+- [ ] Define `/nodes/<nodeId>/anchors.ndjson` format
+- [ ] Define `/federation/config.json` format
+- [ ] Extend `exportBundle()` to include federation data
+- [ ] Extend `importBundle()` to load federation data
+- [ ] Write round-trip tests
+
+**Plain English:** Identity and anchor records are canon, so they export and import with everything else.
+
+---
+
+### F.8 — Spatial Federation Integration
+
+**What this is:** Wire Federation to Spatial Extension for shared Realms.
+
+**Depends on:** F.5, Phase E1
+
+**Sub-tasks:**
+
+- [ ] Define `FederatedRealm` type extension
+- [ ] Define `FederatedTerritory` type extension
+- [ ] Implement consensus-backed territory claims
+- [ ] Implement consensus-backed territory transfers
+- [ ] Write integration tests
+
+**Plain English:** Territory ownership in shared Realms needs global consensus. This wires the Spatial Extension to use Federation for that consensus.
 
 ---
 
@@ -2021,11 +2175,23 @@ _Add governance and rich visualization._
 
 For solo development, after completing core phases (0-15):
 
-1. **E1.1-E1.2** — Spatial types and interfaces
-2. **E2.1-E2.4** — Value types
-3. **E1.3-E1.6** — Spatial implementation
-4. **E2.5-E2.12** — Value implementation
-5. **E3** — Spatial-Value integration
-6. **E4** — Advanced features (governance, visualization)
+**If you need multi-node interaction:**
+1. **F.1-F.7** — Federation foundation (identity, anchoring, basic consensus)
+
+**Then choose based on your needs:**
+
+2. **E1.1-E1.2** — Spatial types and interfaces
+3. **E2.1-E2.4** — Value types
+4. **F.8** — Wire Federation to Spatial (if using shared Realms)
+5. **E1.3-E1.6** — Spatial implementation
+6. **E2.5-E2.12** — Value implementation
+7. **E3** — Spatial-Value integration
+8. **E4** — Advanced features (governance uses Federation for consensus)
+
+**If you only need single-node operation:**
+- Skip Phase F entirely
+- Spatial works locally without shared Realms
+- Value works locally without external verification
+- You can add Federation later when you need it
 
 This order builds capability progressively. You can stop at any point and have a functional extension.

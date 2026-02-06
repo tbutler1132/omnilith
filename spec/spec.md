@@ -1630,6 +1630,7 @@ All extensions MUST respect the Protocol Guarantees (§0):
 
 | Extension | Document | Purpose |
 |-----------|----------|---------|
+| **Federation** | `federation-extension.md` | Local/global consensus, cryptographic identity, anchoring |
 | **Spatial** | `spatial-extension.md` | Coordinates, territories, realms, terrain, proximity |
 | **Value** | `value-extension.md` | Lineage, commitments, capacity, metabolism |
 | **Spatial-Value Integration** | `integration-spatial-value.md` | How space and value interact |
@@ -1640,27 +1641,37 @@ See `extensions-index.md` for complete documentation of all extensions.
 ### 19.3 Extension Dependency Graph
 
 ```
-                    Core Protocol
-                    (this document)
-                          │
-            ┌─────────────┼─────────────┐
-            │             │             │
-            ▼             ▼             ▼
-        Spatial        Value        (Future)
-       Extension     Extension     Extensions
-            │             │
-            └──────┬──────┘
-                   │
-                   ▼
-            Spatial-Value
-             Integration
-                   │
-                   ▼
-              Advanced
-             Integration
+                      Core Protocol
+                      (this document)
+                            │
+      ┌─────────────────────┼─────────────────────┐
+      │             │             │               │
+      ▼             ▼             ▼               ▼
+  Federation    Spatial        Value          (Future)
+  Extension    Extension     Extension       Extensions
+      │             │             │
+      │             └──────┬──────┘
+      │                    │
+      │                    ▼
+      │             Spatial-Value
+      │              Integration
+      │                    │
+      └────────────────────┤
+                           ▼
+                      Advanced
+                      Integration
 ```
 
 ### 19.4 Extension Summary
+
+**Federation Extension** adds consensus:
+- **Local Canon:** Node-sovereign state (default for all data)
+- **Global Consensus:** Shared truth requiring agreement across nodes
+- **Cryptographic Identity:** Verifiable node identity via keypairs/DIDs
+- **Anchoring:** Committing local canon to global consensus (optional, per-item)
+- **Consensus Mechanisms:** Trusted interpreter, federated witnesses, or blockchain
+
+Philosophy: Start local, add global consensus incrementally. The protocol semantics remain constant — only the enforcement mechanism changes. This enables migration from single-node operation to fully decentralized consensus without changing the underlying protocol.
 
 **Spatial Extension** adds geography:
 - **Realm:** Coordinate space with bounds and topology
@@ -1697,6 +1708,7 @@ Extensions add to canon without contradicting it:
 
 | Extension | New Canon | New Derived |
 |-----------|-----------|-------------|
+| Federation | Node identity, Anchor records, Signatures | Verification status, Trust relationships |
 | Spatial | Realms, Territories, Coordinates | Distance, Adjacency |
 | Value | Lineage declarations, Commitments, Capacity | Descendants, Reputation, Metabolism |
 | Integration | Spatial context on artifacts | Schools, Paths, Territorial reputation |
@@ -1712,6 +1724,15 @@ Extensions add directories to the Omnilith Bundle:
   /nodes/
   /packs/
   /log/
+
+  # Federation Extension
+  /nodes/<nodeId>/
+    identity.json            # Cryptographic identity
+    anchors.ndjson           # Anchor records log
+  /federation/
+    config.json              # Federation configuration
+    trusted-keys.json        # Known public keys
+    consensus-proofs.ndjson  # Proof log
 
   # Spatial Extension
   /realms/
@@ -1752,12 +1773,15 @@ The Daemon's core constraints (§7.1.7) apply to all extensions:
 Interpreters may implement extensions incrementally:
 
 1. **Core Only:** Complete, functional protocol for observations, policies, variables, episodes
-2. **+ Spatial:** Adds geography for location-aware systems
-3. **+ Value:** Adds lineage and commitments for creative/accountability systems
-4. **+ Integration:** Combines space and value for inhabited landscapes
-5. **+ Advanced:** Adds governance for communities, visualization for rich UI
+2. **+ Federation:** Adds cryptographic identity and optional global consensus — enables multi-node interaction
+3. **+ Spatial:** Adds geography for location-aware systems (requires Federation for shared Realms)
+4. **+ Value:** Adds lineage and commitments for creative/accountability systems
+5. **+ Integration:** Combines space and value for inhabited landscapes
+6. **+ Advanced:** Adds governance for communities, visualization for rich UI
 
 Each phase is independently valuable. Stop where your use case is satisfied.
+
+**Note on Federation:** Federation is optional for single-node systems but required for any multi-node interaction where trust cannot be assumed. For shared Spatial Realms, Federation provides the consensus mechanism for territory ownership.
 
 See `docs/implementation-plan.md` for detailed implementation phases, including extension phases.
 

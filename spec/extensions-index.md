@@ -25,44 +25,38 @@
 │  Protocol Guarantees: Projection Law, Canon, Determinism, Replay     │
 └─────────────────────────────────────────────────────────────────────┘
                                    │
-                                   │ extends
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                      SPATIAL EXTENSION                               │
-│                    (spatial-extension.md)                            │
-│                                                                      │
-│  Realms, Territories, Terrain, Coordinates, Adjacency, Movement      │
-└─────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   │ extends
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                       VALUE EXTENSION                                │
-│                     (value-extension.md)                             │
-│                                                                      │
-│  Lineage, Commitments, Capacity, Metabolism, Daemon Integration      │
-└─────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   │ integrates
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                 SPATIAL-VALUE INTEGRATION                            │
-│               (integration-spatial-value.md)                         │
-│                                                                      │
-│  Artifacts in Place, Place-Bound Commitments, Territorial            │
-│  Reputation, Spatial Metabolism, Daemon as Landscape Guide           │
-└─────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   │ extends
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                    ADVANCED INTEGRATION                              │
-│                  (advanced-integration.md)                           │
-│                                                                      │
-│  Part A: Spatial Packs                                               │
-│  Part B: Governance (Realms, Disputes, Councils)                     │
-│  Part C: Map Visualization                                           │
-└─────────────────────────────────────────────────────────────────────┘
+           ┌───────────────────────┼───────────────────────┐
+           │                       │                       │
+           ▼                       ▼                       ▼
+┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐
+│ FEDERATION EXTENSION│  │  SPATIAL EXTENSION  │  │   VALUE EXTENSION   │
+│(federation-ext.md)  │  │(spatial-extension.md│  │ (value-extension.md)│
+│                     │  │                     │  │                     │
+│ Identity, Anchoring │  │ Realms, Territories │  │ Lineage, Commitments│
+│ Consensus, Proofs   │  │ Terrain, Adjacency  │  │ Capacity, Metabolism│
+└─────────────────────┘  └──────────┬──────────┘  └──────────┬──────────┘
+           │                        │                        │
+           │                        └────────────┬───────────┘
+           │                                     │
+           │                                     ▼
+           │             ┌─────────────────────────────────────────────┐
+           │             │         SPATIAL-VALUE INTEGRATION           │
+           │             │       (integration-spatial-value.md)        │
+           │             │                                             │
+           │             │  Artifacts in Place, Place-Bound Commits,   │
+           │             │  Territorial Reputation, Spatial Metabolism │
+           │             └────────────────────────┬────────────────────┘
+           │                                      │
+           └──────────────────────────────────────┤
+                                                  ▼
+                         ┌─────────────────────────────────────────────┐
+                         │           ADVANCED INTEGRATION              │
+                         │         (advanced-integration.md)           │
+                         │                                             │
+                         │  Part A: Spatial Packs                      │
+                         │  Part B: Governance (Consensus-backed)      │
+                         │  Part C: Map Visualization                  │
+                         └─────────────────────────────────────────────┘
 ```
 
 ---
@@ -75,36 +69,37 @@
                     │   (spec.md)  │
                     └──────┬───────┘
                            │
-           ┌───────────────┼───────────────┐
-           │               │               │
-           ▼               ▼               ▼
-    ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-    │   Spatial    │ │    Value     │ │   (Future)   │
-    │  Extension   │ │  Extension   │ │  Extensions  │
-    └──────┬───────┘ └──────┬───────┘ └──────────────┘
-           │               │
-           │               │
-           └───────┬───────┘
-                   │
-                   ▼
-           ┌──────────────┐
-           │Spatial-Value │
-           │ Integration  │
-           └──────┬───────┘
-                  │
-                  ▼
-           ┌──────────────┐
-           │   Advanced   │
-           │ Integration  │
-           └──────────────┘
+     ┌─────────────────────┼─────────────────────┐
+     │               │               │           │
+     ▼               ▼               ▼           ▼
+┌──────────┐  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+│Federation│  │   Spatial    │ │    Value     │ │   (Future)   │
+│Extension │  │  Extension   │ │  Extension   │ │  Extensions  │
+└────┬─────┘  └──────┬───────┘ └──────┬───────┘ └──────────────┘
+     │               │               │
+     │               └───────┬───────┘
+     │                       │
+     │                       ▼
+     │               ┌──────────────┐
+     │               │Spatial-Value │
+     │               │ Integration  │
+     │               └──────┬───────┘
+     │                      │
+     └──────────────────────┤
+                            ▼
+                     ┌──────────────┐
+                     │   Advanced   │
+                     │ Integration  │
+                     └──────────────┘
 ```
 
 **Dependency Rules:**
 - Core Spec has no dependencies
+- Federation Extension requires Core Spec (foundational for multi-node consensus)
 - Spatial Extension requires Core Spec
 - Value Extension requires Core Spec
 - Spatial-Value Integration requires both Spatial and Value Extensions
-- Advanced Integration requires Spatial-Value Integration
+- Advanced Integration requires Spatial-Value Integration and benefits from Federation Extension
 
 ---
 
@@ -113,10 +108,11 @@
 | Document | Status | Dependencies | Summary |
 |----------|--------|--------------|---------|
 | `spec.md` | Core | None | The protocol specification |
+| `federation-extension.md` | Draft | Core | Local/global consensus, cryptographic identity, anchoring |
 | `spatial-extension.md` | Draft | Core | Coordinates, territories, realms, terrain |
 | `value-extension.md` | Draft | Core | Lineage, commitments, capacity, metabolism |
 | `integration-spatial-value.md` | Draft | Spatial, Value | How space and value interact |
-| `advanced-integration.md` | Draft | Spatial-Value | Packs, governance, visualization |
+| `advanced-integration.md` | Draft | Spatial-Value, Federation | Packs, governance, visualization |
 | `extensions-index.md` | This file | All | Overview and navigation |
 
 ---
@@ -155,6 +151,31 @@ The main specification (`spec.md`) defines these foundational concepts:
 ---
 
 ## Extension Concepts
+
+### Federation Extension
+
+Adds consensus and verifiable identity to the protocol.
+
+| Concept | Section | Purpose |
+|---------|---------|---------|
+| Local Canon | F.1.1 | Node-sovereign state (default) |
+| Global Consensus | F.1.2 | Shared truth requiring agreement |
+| Cryptographic Identity | F.2 | Verifiable node identity via keypairs/DIDs |
+| Anchoring | F.4 | Committing local canon to global consensus |
+| Consensus Mechanisms | F.3 | Trusted interpreter, federated witnesses, blockchain |
+| Spatial Federation | F.5 | How shared Realms achieve consensus |
+
+**New Canon:**
+- Node identity (public keys, DIDs)
+- Anchor records (what has been globally registered)
+- Signatures on artifacts/observations
+
+**New Derived State:**
+- Verification status
+- Trust relationships
+- Cross-node proof validity
+
+**Key Insight:** The protocol semantics (what things mean) remain constant. Only the consensus mechanism (who enforces agreement) varies. This allows starting local and migrating to global consensus incrementally.
 
 ### Spatial Extension
 
@@ -245,6 +266,35 @@ Extends integrated system with governance and visualization.
 ---
 
 ## Type Additions by Extension
+
+### Federation Extension Adds:
+
+```ts
+// New primary types
+FederatedNode
+NodeIdentity
+AnchorRecord
+SignedObservation
+SignedArtifact
+ConsensusConfig
+TrustGrant
+
+// Extensions to existing types
+Node.identity?
+Node.federation?
+Observation.signature?
+Artifact.signature?
+
+// New action types
+federation:anchor
+federation:verify_anchor
+
+// Consensus mechanism types
+TrustedInterpreterConfig
+FederatedWitnessesConfig
+BlockchainConfig
+HybridConfig
+```
 
 ### Spatial Extension Adds:
 
@@ -368,6 +418,18 @@ Each extension adds to the Omnilith Bundle format:
   /log/
 ```
 
+### With Federation Extension
+```
+/omnilith-bundle
+  /nodes/<nodeId>/
+    identity.json              # Cryptographic identity
+    anchors.ndjson             # Anchor records log
+  /federation/
+    config.json                # Federation configuration
+    trusted-keys.json          # Known public keys
+    consensus-proofs.ndjson    # Proof log
+```
+
 ### With Spatial Extension
 ```
 /omnilith-bundle
@@ -452,33 +514,43 @@ All extensions must respect core protocol invariants:
 For interpreters implementing these extensions:
 
 ### Phase 1: Core Only
-Implement spec.md. This is a complete, functional protocol.
+Implement spec.md. This is a complete, functional protocol for single-node operation.
 
-### Phase 2: Add Spatial
+### Phase 2: Add Federation (for multi-node)
+- Add cryptographic identity to nodes
+- Implement signature generation/verification
+- Add anchoring infrastructure
+- Choose initial consensus mechanism (trusted interpreter is simplest)
+- Update bundle format
+
+### Phase 3: Add Spatial
 - Add Realm/Territory data models
 - Implement spatial queries
 - Add claim/transfer/resize actions
+- For shared Realms, wire to Federation consensus
 - Update bundle format
 
-### Phase 3: Add Value
+### Phase 4: Add Value
 - Add Lineage/Commitment/Capacity models
 - Implement derived metrics calculators
 - Add commitment lifecycle actions
 - Extend Daemon with value awareness
 
-### Phase 4: Integrate Spatial-Value
+### Phase 5: Integrate Spatial-Value
 - Connect artifacts to spatial context
 - Implement place-bound commitments
 - Add territorial reputation calculations
 - Extend Daemon as landscape guide
 
-### Phase 5: Advanced Features
-- Add governance models
+### Phase 6: Advanced Features
+- Add governance models (uses Federation for consensus)
 - Implement dispute resolution
 - Build map visualization layers
 - Add spatial pack mechanics
 
 Each phase is independently valuable. An interpreter can stop at any phase and have a coherent system.
+
+**Note:** Federation can be added at any point, but is required before shared Realms can work. For single-node use, Federation is optional.
 
 ---
 
@@ -492,11 +564,12 @@ The core protocol is intentionally minimal:
 - Artifacts, surfaces, Prism
 
 Extensions add richness without compromising the core:
+- **Federation:** Not everyone needs multi-node consensus — single-node works fine locally
 - **Spatial:** Not everyone needs geography
 - **Value:** Not everyone needs lineage/commitments
 - **Governance:** Not everyone needs formal administration
 
-A personal journaling system might use Core only. A creative community might add Spatial and Value. A large organization might need Governance.
+A personal journaling system might use Core only. A personal system that wants backup/sync might add Federation. A creative community might add Spatial and Value. A large organization might need Governance.
 
 ### Extension Compatibility
 
@@ -509,12 +582,14 @@ Extensions are designed to be:
 ### Future Extensions
 
 The architecture supports future extensions:
-- **Financial:** Currency, exchange, contracts (carefully!)
+- **Financial:** Currency, exchange, contracts (carefully! — would require Federation for trustless exchange)
 - **Temporal:** Time-based territories, seasonal effects
 - **Social:** Formal relationships, organizations, roles
 - **Creative:** Collaboration tools, version branching, merge
 
 Each would follow the same pattern: define types, specify canon vs. derived, respect invariants, integrate with existing extensions.
+
+**Note on Financial:** Any financial extension would almost certainly require Federation with blockchain consensus for trustless value transfer. The Federation extension provides the foundation but intentionally stops short of defining economic mechanisms.
 
 ---
 
@@ -528,6 +603,12 @@ Each would follow the same pattern: define types, specify canon vs. derived, res
 | Node types | spec.md | §2 |
 | How policies work | spec.md | §9 |
 | Daemon behavior | spec.md | §7.1 |
+| Local vs global consensus | federation-extension.md | F.1 |
+| Cryptographic identity | federation-extension.md | F.2 |
+| Consensus mechanisms | federation-extension.md | F.3 |
+| Anchoring artifacts | federation-extension.md | F.4 |
+| Servers/interpreters as nodes | federation-extension.md | F.7 |
+| Migration to federation | federation-extension.md | F.8 |
 | Coordinates and territories | spatial-extension.md | S.1-S.2 |
 | How to claim territory | spatial-extension.md | S.5.1 |
 | Lineage and influence | value-extension.md | V.1 |
